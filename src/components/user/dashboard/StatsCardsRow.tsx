@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import type { ReactElement } from "react";
 import useUserStore from "@/store/user.store";
 import DashboardAccountCard from "./DashboardAccountCard";
 import SavingsTypeCard from "./cards/SavingsTypeCard";
@@ -64,15 +65,18 @@ const StatsCardsRow = () => {
             hasInvestment ? { key: "invest", element: <InvestmentStatCard /> } : null,
           ]
             .filter(Boolean)
-            .map((card) => (
-              <div
-                key={(card as { key: string }).key}
-                className="snap-start"
-                style={{ minWidth: "calc(100vw - 2rem)" }}
-              >
-                {(card as { element: JSX.Element }).element}
-              </div>
-            ))}
+            .map((card) => {
+              const typed = card as { key: string; element: ReactElement };
+              return (
+                <div
+                  key={typed.key}
+                  className="snap-start"
+                  style={{ minWidth: "calc(100vw - 2rem)" }}
+                >
+                  {typed.element}
+                </div>
+              );
+            })}
         </div>
       </div>
 

@@ -53,19 +53,44 @@ const StatsCardsRow = () => {
   }, [statsCardsCount]);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-      <DashboardAccountCard wallets={user?.wallet || []} />
-      
-      {/* Only show stats cards if user has created them */}
-      {hasSavings && <SavingsTypeCard />}
-      {hasFixedDeposit && <FixedDepositCard />}
-      {hasInvestment && <InvestmentStatCard />}
-      
-      {/* Placeholder chart card - only show if there's space */}
-      {placeholderSpan > 0 && (
-        <TransactionChartCard spanCols={placeholderSpan} />
-      )}
-    </div>
+    <>
+      {/* Mobile: horizontal slider for the 4 stats cards (excluding Transaction Overview) */}
+      <div className="sm:hidden -mx-4 px-4">
+        <div className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth pb-1">
+          {[
+            { key: "account", element: <DashboardAccountCard wallets={user?.wallet || []} /> },
+            hasSavings ? { key: "savings", element: <SavingsTypeCard /> } : null,
+            hasFixedDeposit ? { key: "fixed", element: <FixedDepositCard /> } : null,
+            hasInvestment ? { key: "invest", element: <InvestmentStatCard /> } : null,
+          ]
+            .filter(Boolean)
+            .map((card) => (
+              <div
+                key={(card as { key: string }).key}
+                className="snap-start"
+                style={{ minWidth: "calc(100vw - 2rem)" }}
+              >
+                {(card as { element: JSX.Element }).element}
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {/* Tablet & Desktop: keep the grid and placeholder/chart logic */}
+      <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+        <DashboardAccountCard wallets={user?.wallet || []} />
+        
+        {/* Only show stats cards if user has created them */}
+        {hasSavings && <SavingsTypeCard />}
+        {hasFixedDeposit && <FixedDepositCard />}
+        {hasInvestment && <InvestmentStatCard />}
+        
+        {/* Placeholder chart card - only show if there's space */}
+        {placeholderSpan > 0 && (
+          <TransactionChartCard spanCols={placeholderSpan} />
+        )}
+      </div>
+    </>
   );
 };
 

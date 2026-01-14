@@ -66,9 +66,6 @@ const DashboardAccountCard = ({ wallets }: { wallets: Wallet[] }) => {
 
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-xs font-medium text-[#1F1F1F]/80">
-              {currencyLabel[active?.currency || "NGN"]}
-            </span>
             <p className="text-3xl font-bold text-[#1F1F1F]">
               {showBalance
                 ? `₦${(active?.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`

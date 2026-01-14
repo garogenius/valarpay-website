@@ -13,6 +13,8 @@ import GlobalTransactionHistoryModal from "@/components/shared/GlobalTransaction
 import { useFingerprintForPayments } from "@/store/paymentPreferences.store";
 import useGlobalModalsStore from "@/store/globalModals.store";
 import {
+  useGetEducationBillers,
+  useGetEducationBillerItems,
   useVerifyWaecBillerNumber,
   useVerifyJambBillerNumber,
   usePayWaec,
@@ -27,6 +29,7 @@ type ProductOption = {
   name: string;
   // Optional display amount; actual amount is always taken from verify response
   displayAmount?: number;
+  currency?: string;
 };
 
 const JambWaecBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -53,29 +56,46 @@ const JambWaecBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [transactionData, setTransactionData] = useState<any>(null);
 
-  // Opay-style: fixed product IDs
-  const waecProducts: ProductOption[] = useMemo(
-    () => [
-      { itemCode: "1473", name: "Result Checker", displayAmount: 4000 },
-      { itemCode: "1474", name: "Registration PIN", displayAmount: 27000 },
-    ],
-    []
-  );
+  // Fetch billers and products (plans) from production endpoints
+  const { billers } = useGetEducationBillers();
+  const billerCode =
+    examType === "WAEC"
+      ? billers.find((b) => String(b.billerName || b.billerCode || "").toUpperCase().includes("WAEC"))?.billerCode ||
+        billers.find((b) => String(b.billerId || "").toUpperCase().includes("WAEC"))?.billerId ||
+        "WAEC"
+      : examType === "JAMB"
+        ? billers.find((b) => String(b.billerName || b.billerCode || "").toUpperCase().includes("JAMB"))?.billerCode ||
+          billers.find((b) => String(b.billerId || "").toUpperCase().includes("JAMB"))?.billerId ||
+          "JAMB"
+        : "";
 
-  const jambProducts: ProductOption[] = useMemo(
-    () => [
-      { itemCode: "308", name: "JAMB DE", displayAmount: 5700 },
-      { itemCode: "309", name: "JAMB UME Mock", displayAmount: 8700 },
-      { itemCode: "1612", name: "JAMB UTME (Variable)" },
-      { itemCode: "1613", name: "JAMB UTME Mock (Variable)" },
-      { itemCode: "1614", name: "Mock Only", displayAmount: 3500 },
-    ],
-    []
-  );
+  const billerName =
+    examType === "WAEC"
+      ? billers.find((b) => String(b.billerName || b.billerCode || b.billerId || "").toUpperCase().includes("WAEC"))
+          ?.billerName || "WAEC"
+      : examType === "JAMB"
+        ? billers.find((b) => String(b.billerName || b.billerCode || b.billerId || "").toUpperCase().includes("JAMB"))
+            ?.billerName || "JAMB"
+        : "";
 
-  const products = examType === "WAEC" ? waecProducts : examType === "JAMB" ? jambProducts : [];
-  const billerCode = examType || "";
-  const billerName = examType || "";
+  const { items: billerItems, isPending: itemsPending } = useGetEducationBillerItems(billerCode);
+
+  const products = useMemo(() => {
+    if (!examType) return [];
+    return (billerItems || [])
+      .map((p: any) => ({
+        itemCode: String(p?.billPaymentProductId || p?.itemCode || p?.item_code || p?.id || "").trim(),
+        name: String(p?.billPaymentProductName || p?.itemName || p?.name || "").trim(),
+        displayAmount:
+          typeof p?.payAmount === "number"
+            ? p.payAmount
+            : typeof p?.amount === "number"
+              ? p.amount
+              : undefined,
+        currency: p?.currency || "NGN",
+      }))
+      .filter((p) => p.itemCode && p.name);
+  }, [examType, billerItems]);
 
   const amount = useMemo(() => Number(verifiedAmount) || 0, [verifiedAmount]);
 
@@ -191,7 +211,7 @@ const JambWaecBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const paying = (examType === "WAEC" && payWaecPending) || (examType === "JAMB" && payJambPending);
 
   const canNext =
-    !!examType && !!selectedProduct && !!billerCode && billerNumber.trim().length >= 6;
+    !!examType && !!selectedProduct?.itemCode && !!billerCode && billerNumber.trim().length >= 6;
   const canPay = canNext && walletPin.length === 4 && !!verifiedCustomerName && amount > 0;
 
   return (
@@ -277,7 +297,11 @@ const JambWaecBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 </button>
                 {planOpen && examType && (
                   <div className="relative left-0 w-full bg-white dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-2xl z-[9999] mt-2">
-                    {products.length === 0 ? (
+                    {itemsPending ? (
+                      <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                        Loading plans...
+                      </div>
+                    ) : products.length === 0 ? (
                       <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
                         No plans available
                       </div>
@@ -395,19 +419,19 @@ const JambWaecBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <div className="px-5 pb-5">
           {step === "details" ? (
             <button
-              onClick={() => {
-                if (!examType || !selectedProduct || !billerNumber || !billerCode) return;
-                const itemCode = selectedProduct.itemCode;
-                if (examType === "WAEC") {
-                  verifyWaec({ itemCode, billerCode, billerNumber });
-                } else {
-                  verifyJamb({ itemCode, billerCode, billerNumber });
-                }
-              }}
-              disabled={!canNext || verifyLoading}
-              className="w-full px-4 py-3 rounded-full bg-[#FF6B2C] text-black font-semibold hover:bg-[#FF7A3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {verifyLoading ? "Verifying..." : "Next"}
+                  onClick={() => {
+                    if (!examType || !selectedProduct?.itemCode || !billerNumber || !billerCode) return;
+                    const itemCode = selectedProduct.itemCode;
+                    if (examType === "WAEC") {
+                      verifyWaec({ itemCode, billerCode, billerNumber });
+                    } else {
+                      verifyJamb({ itemCode, billerCode, billerNumber });
+                    }
+                  }}
+                  disabled={!canNext || verifyLoading}
+                  className="w-full px-4 py-3 rounded-full bg-[#FF6B2C] text-black font-semibold hover:bg-[#FF7A3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {verifyLoading ? "Verifying..." : "Next"}
             </button>
           ) : (
             <div className="flex items-center gap-3">
@@ -418,35 +442,35 @@ const JambWaecBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 Back
               </button>
               <button
-                onClick={() => {
-                  if (!examType || !selectedProduct || !billerNumber || !walletPin) return;
-                  const itemCode = selectedProduct.itemCode;
-                  if (examType === "WAEC") {
-                    payWaec({
-                      itemCode,
-                      billerCode,
-                      currency: "NGN",
-                      billerNumber,
-                      amount,
-                      walletPin,
-                      addBeneficiary: false,
-                    });
-                  } else {
-                    payJamb({
-                      itemCode,
-                      billerCode,
-                      currency: "NGN",
-                      billerNumber,
-                      amount,
-                      walletPin,
-                      addBeneficiary: false,
-                    });
-                  }
-                }}
-                disabled={!canPay || paying}
-                className="flex-1 px-4 py-3 rounded-full bg-[#FF6B2C] text-black font-semibold hover:bg-[#FF7A3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {paying ? "Processing..." : "Pay"}
+                  onClick={() => {
+                    if (!examType || !selectedProduct?.itemCode || !billerNumber || !walletPin) return;
+                    const itemCode = selectedProduct.itemCode;
+                    if (examType === "WAEC") {
+                      payWaec({
+                        itemCode,
+                        billerCode,
+                        currency: "NGN",
+                        billerNumber,
+                        amount,
+                        walletPin,
+                        addBeneficiary: false,
+                      });
+                    } else {
+                      payJamb({
+                        itemCode,
+                        billerCode,
+                        currency: "NGN",
+                        billerNumber,
+                        amount,
+                        walletPin,
+                        addBeneficiary: false,
+                      });
+                    }
+                  }}
+                  disabled={!canPay || paying}
+                  className="flex-1 px-4 py-3 rounded-full bg-[#FF6B2C] text-black font-semibold hover:bg-[#FF7A3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {paying ? "Processing..." : "Pay"}
               </button>
             </div>
           )}

@@ -213,6 +213,8 @@ input:-webkit-autofill:active {
 /* Hide small floating loaders in top-right/bottom-right corners */
 div[class*="fixed"][class*="right"]:has(svg[class*="animate-spin"]),
 div[class*="fixed"][class*="right"]:has([class*="loader"]),
-button[class*="fixed"][class*="right"]:has(svg[class*="animate-spin"]) {
+button[class*="fixed"][class*="right"]:has(svg[class*="animate-spin"]),
+#nprogress .spinner,
+.nprogress-custom-parent .spinner {
   display: none !important;
 }

@@ -22,14 +22,14 @@ interface GlobalTransactionReceiptModalProps {
     reference: string;
     description?: string;
     createdAt: string;
-    
+
     // Transfer specific fields
     recipientName?: string;
     recipientAccount?: string;
     recipientBank?: string;
     senderName?: string;
     senderAccount?: string;
-    
+
     // Bill payment specific fields
     billerName?: string;
     billerNumber?: string;
@@ -191,7 +191,7 @@ const GlobalTransactionReceiptModal: React.FC<GlobalTransactionReceiptModalProps
                       crossOrigin="anonymous"
                       className="w-8 h-8 object-contain"
                     />
-                    <span className="text-white font-bold text-xl tracking-tight leading-none relative top-px">VALARPAY</span>
+                    <span className="text-white font-bold text-xl tracking-tight leading-none whitespace-nowrap">VALARPAY</span>
                   </div>
                   <span className="text-white/90 text-sm font-medium">Beyond Banking</span>
                 </div>
@@ -286,7 +286,7 @@ const GlobalTransactionReceiptModal: React.FC<GlobalTransactionReceiptModalProps
                 {/* Footer */}
                 <div className="mt-12">
                   <p className="text-[10px] text-white/70 leading-relaxed font-light">
-                    Thank you for banking with ValarPay. For support, contact us at Support@valarpay.com, 
+                    Thank you for banking with ValarPay. For support, contact us at Support@valarpay.com,
                     call +2348134146906 or Head Office: C3&C4 Suite 2nd Floor Ejison Plaza 9a New Market Road Main Market Onitsha
                   </p>
                 </div>

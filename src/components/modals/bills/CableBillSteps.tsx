@@ -37,7 +37,10 @@ const CableBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [provider, setProvider] = useState<CablePlan | null>(null);
   const [plan, setPlan] = useState<CableVariationProps | null>(null);
   const [smartcardNumber, setSmartcardNumber] = useState("");
+
   const [walletPin, setWalletPin] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // Search state for provider
+  const [planSearchTerm, setPlanSearchTerm] = useState(""); // Search state for plan
 
   const [verifiedName, setVerifiedName] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -87,7 +90,7 @@ const CableBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const onVerifySuccess = (data: any) => {
     const name = data?.data?.data?.customerName || data?.data?.data?.name || "";
     setVerifiedName(String(name || ""));
-    setStep("confirm");
+    // setStep("confirm"); // Don't auto-advance
   };
 
   const { mutate: verifySmartcard, isPending: verifying, isError: verifyErr } = useVerifyCableNumber(
@@ -133,6 +136,21 @@ const CableBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { mutate: payCable, isPending: payPending, isError: payErr } = usePayForCable(onPayError, onPaySuccess);
   const paying = payPending && !payErr;
 
+  // Debounce hook (internal or imported, but I will implement simple timeout)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (provider && plan && smartcardNumber.length >= 10 && !verifiedName) {
+        verifySmartcard({
+          billerCode: provider.billerCode,
+          itemCode: plan.item_code,
+          billerNumber: smartcardNumber,
+        });
+      }
+    }, 1000); // 1 second debounce
+
+    return () => clearTimeout(timer);
+  }, [smartcardNumber, provider, plan]);
+
   const canNext = !!provider && !!plan && smartcardNumber.length >= 6;
   const canPay = canNext && walletPin.length === 4;
 
@@ -173,41 +191,85 @@ const CableBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   <span className="text-gray-500 dark:text-gray-500">▾</span>
                 </button>
                 {providerOpen && (
-                  <div className="relative left-0 w-full bg-white dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-2xl z-[9999] mt-2">
-                    {plansLoading ? (
-                      <div className="p-4 flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
-                        <SpinnerLoader width={18} height={18} color="#FF6B2C" /> Loading...
-                      </div>
-                    ) : (
-                      (cablePlans || []).map((p) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => {
-                            setProvider(p);
-                            setProviderOpen(false);
-                          }}
-                          className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors"
-                        >
-                          {String((p as any).planName || (p as any).shortName || (p as any).description || "Cable TV")}
-                        </button>
-                      ))
-                    )}
+                  <div className="absolute left-0 top-full mt-2 w-full bg-white dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-2xl z-[9999]">
+                    {/* Search Input */}
+                    <div className="p-2 border-b border-gray-100 dark:border-gray-800">
+                      <input
+                        autoFocus
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        placeholder="Search provider..."
+                        className="w-full bg-gray-50 dark:bg-black/20 border-none rounded-lg px-3 py-2 text-sm text-black dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#FF6B2C]"
+                      />
+                    </div>
+
+                    <div className="max-h-52 overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+                      {plansLoading ? (
+                        <div className="p-4 flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+                          <SpinnerLoader width={18} height={18} color="#FF6B2C" /> Loading...
+                        </div>
+                      ) : (
+                        (cablePlans || [])
+                          .filter((p) => {
+                            const name = String((p as any).planName || (p as any).shortName || (p as any).description || "").toLowerCase();
+                            return name.includes(searchTerm.toLowerCase());
+                          })
+                          .map((p) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => {
+                                setProvider(p);
+                                setProviderOpen(false);
+                                setSearchTerm(""); // Reset search
+                              }}
+                              className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors border-b border-gray-50 dark:border-gray-800 last:border-b-0"
+                            >
+                              {String((p as any).planName || (p as any).shortName || (p as any).description || "Cable TV")}
+                            </button>
+                          ))
+                      )}
+
+                      {/* Empty State */}
+                      {!plansLoading && (cablePlans || []).length > 0 &&
+                        (cablePlans || []).filter(p => String((p as any).planName || (p as any).shortName || (p as any).description || "").toLowerCase().includes(searchTerm.toLowerCase())).length === 0 && (
+                          <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-xs">
+                            No providers found
+                          </div>
+                        )}
+                    </div>
                   </div>
                 )}
               </div>
 
               <div className="flex flex-col gap-1">
                 <label className="text-[11px] text-gray-500 dark:text-gray-400">Smartcard Number</label>
-                <div className="w-full flex items-center bg-[#F4F4F5] dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2.5 text-sm">
+                <div className="w-full relative flex items-center bg-[#F4F4F5] dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2.5 text-sm">
                   <input
                     value={smartcardNumber}
-                    onChange={(e) => setSmartcardNumber(e.target.value.replace(/\D/g, "").slice(0, 12))}
+                    onChange={(e) => {
+                      setSmartcardNumber(e.target.value.replace(/\D/g, "").slice(0, 12));
+                      setVerifiedName(""); // Reset verification on change
+                    }}
                     className="w-full bg-transparent border-none outline-none text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-600 text-sm"
                     placeholder="Enter smartcard number"
                     inputMode="numeric"
                   />
+                  {verifyLoading && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <SpinnerLoader width={16} height={16} color="#FF6B2C" />
+                    </div>
+                  )}
                 </div>
+                {verifiedName && (
+                  <div className="flex items-center gap-2 mt-1 px-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <p className="text-[11px] text-green-600 dark:text-green-400 font-medium">
+                      {verifiedName}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="relative flex flex-col gap-1" ref={planRef}>
@@ -224,26 +286,51 @@ const CableBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   <span className="text-gray-500 dark:text-gray-500">▾</span>
                 </button>
                 {planOpen && (
-                  <div className="relative left-0 w-full bg-white dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-2xl z-[9999] mt-2">
-                    {variationsLoading ? (
-                      <div className="p-4 flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
-                        <SpinnerLoader width={18} height={18} color="#FF6B2C" /> Loading...
-                      </div>
-                    ) : (
-                      (variations || []).map((v) => (
-                        <button
-                          key={v.id}
-                          type="button"
-                          onClick={() => {
-                            setPlan(v);
-                            setPlanOpen(false);
-                          }}
-                          className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors"
-                        >
-                          {v.name}
-                        </button>
-                      ))
-                    )}
+                  <div className="absolute left-0 top-full mt-2 w-full bg-white dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-2xl z-[9999]">
+                    {/* Search Input for Plan */}
+                    <div className="p-2 border-b border-gray-100 dark:border-gray-800">
+                      <input
+                        autoFocus
+                        value={planSearchTerm}
+                        onChange={(e) => setPlanSearchTerm(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        placeholder="Search plan..."
+                        className="w-full bg-gray-50 dark:bg-black/20 border-none rounded-lg px-3 py-2 text-sm text-black dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#FF6B2C]"
+                      />
+                    </div>
+
+                    <div className="max-h-52 overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+                      {variationsLoading ? (
+                        <div className="p-4 flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+                          <SpinnerLoader width={18} height={18} color="#FF6B2C" /> Loading...
+                        </div>
+                      ) : (
+                        (variations || [])
+                          .filter((v) => v.name.toLowerCase().includes(planSearchTerm.toLowerCase()))
+                          .map((v) => (
+                            <button
+                              key={v.id}
+                              type="button"
+                              onClick={() => {
+                                setPlan(v);
+                                setPlanOpen(false);
+                                setPlanSearchTerm("");
+                              }}
+                              className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors border-b border-gray-100 dark:border-gray-800 last:border-b-0"
+                            >
+                              {v.name}
+                            </button>
+                          ))
+                      )}
+
+                      {/* Empty State */}
+                      {!variationsLoading && (variations || []).length > 0 &&
+                        (variations || []).filter(v => v.name.toLowerCase().includes(planSearchTerm.toLowerCase())).length === 0 && (
+                          <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-xs">
+                            No plans found
+                          </div>
+                        )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -323,11 +410,16 @@ const CableBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <button
               onClick={() => {
                 if (!provider || !plan) return;
-                verifySmartcard({
-                  billerCode: provider.billerCode,
-                  itemCode: plan.item_code,
-                  billerNumber: smartcardNumber,
-                });
+                // If not verified yet, verify, else proceed
+                if (!verifiedName) {
+                  verifySmartcard({
+                    billerCode: provider.billerCode,
+                    itemCode: plan.item_code,
+                    billerNumber: smartcardNumber,
+                  });
+                } else {
+                  setStep("confirm");
+                }
               }}
               disabled={!canNext || verifyLoading}
               className="w-full px-4 py-3 rounded-full bg-[#FF6B2C] text-black font-semibold hover:bg-[#FF7A3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

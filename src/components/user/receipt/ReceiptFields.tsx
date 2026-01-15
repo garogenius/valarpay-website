@@ -206,7 +206,7 @@ const ReceiptContainer = () => {
               crossOrigin="anonymous"
               className="w-8 h-8 object-contain"
             />
-            <span className="text-white font-bold text-xl tracking-tight leading-none relative top-px">VALARPAY</span>
+            <span className="text-white font-bold text-xl tracking-tight leading-none whitespace-nowrap">VALARPAY</span>
           </div>
           <span className="text-white/90 text-sm font-medium">Beyond Banking</span>
         </div>
@@ -227,11 +227,9 @@ const ReceiptContainer = () => {
                   {/* Handle the weird double Transaction Date label from screenshot if it's the type field */}
                   {field.label === "Transaction Type" ? "Transaction Date" : field.label}
                 </span>
-                <span className={`text-sm font-medium ${
-                  field.flag === "status" ? "text-[#22C55E] font-bold" : "text-white"
-                } ${
-                  field.label === "Sender Name" || field.label === "Beneficiary Details" ? "uppercase" : ""
-                } text-right max-w-[65%] truncate`}>
+                <span className={`text-sm font-medium ${field.flag === "status" ? "text-[#22C55E] font-bold" : "text-white"
+                  } ${field.label === "Sender Name" || field.label === "Beneficiary Details" ? "uppercase" : ""
+                  } text-right max-w-[65%] truncate`}>
                   {field.value}
                 </span>
               </div>
@@ -243,7 +241,7 @@ const ReceiptContainer = () => {
         {/* Footer */}
         <div className="mt-12 text-left">
           <p className="text-[10px] text-white/70 leading-relaxed font-light">
-            Thank you for banking with ValarPay. For support, contact us at <span className="text-white">Support@valarpay.com</span>, 
+            Thank you for banking with ValarPay. For support, contact us at <span className="text-white">Support@valarpay.com</span>,
             call <span className="text-white">+2348134146906</span> or Head Office: C3&C4 Suite 2nd Floor Ejison Plaza 9a New Market Road Main Market Onitsha
           </p>
         </div>

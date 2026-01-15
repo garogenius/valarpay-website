@@ -8,12 +8,12 @@ export default function UserLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <SessionTimeoutProvider>
-      <UserProtectionProvider>
-        <div className="relative flex w-full h-screen overflow-hidden bg-[#000000]">
-          <Sidebar />
-          <Content>{children}</Content>
-        </div>
-      </UserProtectionProvider>
+    <UserProtectionProvider>
+      <div className="relative flex w-full h-screen overflow-hidden bg-[#000000]">
+        <Sidebar />
+        <Content>{children}</Content>
+      </div>
+    </UserProtectionProvider>
     </SessionTimeoutProvider>
   );
 }

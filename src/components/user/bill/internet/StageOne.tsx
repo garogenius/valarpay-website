@@ -335,17 +335,17 @@ const InternetStageOne: React.FC<StageOneProps> = ({
                 <SearchableDropdown
                   // API returns { name, planName, amount, billerCode }. We show providers uniquely by billerCode.
                   items={(Array.isArray(internetPlans) ? internetPlans : []).reduce((acc: any[], p: any) => {
-                    const code = String(p?.billerCode || "").trim();
-                    if (!code) return acc;
-                    if (acc.some((x) => String(x?.billerCode) === code)) return acc;
-                    acc.push({
-                      ...p,
-                      shortName:
+                      const code = String(p?.billerCode || "").trim();
+                      if (!code) return acc;
+                      if (acc.some((x) => String(x?.billerCode) === code)) return acc;
+                      acc.push({
+                        ...p,
+                        shortName:
                         String(p?.planName || p?.billerName || p?.name || p?.billerCode || "").replace(/_/g, " ") ||
                         "Internet",
-                    });
-                    return acc;
-                  }, [])}
+                      });
+                      return acc;
+                    }, [])}
                   searchKey="shortName"
                   displayFormat={(provider) => {
                     return (

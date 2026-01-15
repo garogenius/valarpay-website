@@ -39,12 +39,12 @@ const AccountsContent: React.FC = () => {
   // Get all available currencies dynamically
   const allAvailableCurrencies = useMemo(() => {
     const currenciesSet = new Set<string>();
-    
+
     // Add NGN from wallet
     if (user?.wallet?.some(w => (w.currency || "").toUpperCase() === "NGN")) {
       currenciesSet.add("NGN");
     }
-    
+
     // Add all currencies from wallet accounts
     walletAccounts?.forEach((acc: WalletAccount) => {
       const currency = (acc.currency || "").toUpperCase();
@@ -52,10 +52,10 @@ const AccountsContent: React.FC = () => {
         currenciesSet.add(currency);
       }
     });
-    
+
     // Always include common currencies even if not created yet
     ["NGN", "USD", "EUR", "GBP"].forEach(curr => currenciesSet.add(curr));
-    
+
     return Array.from(currenciesSet).sort();
   }, [user?.wallet, walletAccounts]);
 
@@ -67,7 +67,7 @@ const AccountsContent: React.FC = () => {
   const [accountLabel, setAccountLabel] = useState("");
   const [showKYCModal, setShowKYCModal] = useState(false);
   const [kycErrorMessage, setKycErrorMessage] = useState<string>("");
-  
+
   // Filter for non-NGN currency accounts
   const currencyAccounts = useMemo(() => {
     return (walletAccounts || []).filter((acc: WalletAccount) => acc.currency !== "NGN");
@@ -78,19 +78,19 @@ const AccountsContent: React.FC = () => {
   const [storedCardId, setStoredCardId] = useState<string>("");
   const [cards, setCards] = useState<any[]>([]);
   const cardsLoading = false;
-  
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const cardId = localStorage.getItem("usdVirtualCardId") || "";
       setStoredCardId(cardId);
     }
   }, []);
-  
+
   const { card: virtualCard } = useGetCardById(
     storedCardId || "",
     !!storedCardId && (selectedCurrency === "USD" || selectedCurrency === "NGN")
   );
-  
+
   // Convert single card to array format for compatibility
   const cardsArray = useMemo(() => {
     if (virtualCard && (selectedCurrency === "USD" || selectedCurrency === "NGN")) {
@@ -109,7 +109,7 @@ const AccountsContent: React.FC = () => {
     }
     return [];
   }, [virtualCard, selectedCurrency, user?.fullname]);
-  
+
   const refetchCards = () => {
     refetchAccounts();
     if (typeof window !== "undefined") {
@@ -117,11 +117,11 @@ const AccountsContent: React.FC = () => {
       setStoredCardId(cardId);
     }
   };
-  
+
   // Filter cards for selected currency (including NGN)
   const currencyCards = useMemo(() => {
-    return cardsArray.filter((card: any) => 
-      card.isVirtual && 
+    return cardsArray.filter((card: any) =>
+      card.isVirtual &&
       (card.currency || "").toUpperCase() === selectedCurrency
     );
   }, [cardsArray, selectedCurrency]);
@@ -132,7 +132,7 @@ const AccountsContent: React.FC = () => {
       // NGN uses wallet
       return null;
     }
-    return currencyAccounts.find((acc: WalletAccount) => 
+    return currencyAccounts.find((acc: WalletAccount) =>
       (acc.currency || "").toUpperCase() === selectedCurrency
     );
   }, [currencyAccounts, selectedCurrency]);
@@ -145,20 +145,20 @@ const AccountsContent: React.FC = () => {
     return null;
   }, [user?.wallet, selectedCurrency]);
 
-  const bankName = selectedCurrency === "NGN" 
-    ? (activeWallet?.bankName || "ValarPay")
-    : (currencyAccount?.bankName || "ValarPay");
+  const bankName = selectedCurrency === "NGN"
+    ? (activeWallet?.bankName || (activeWallet as any)?.bank_name || "ValarPay")
+    : (currencyAccount?.bankName || (currencyAccount as any)?.bank_name || "ValarPay");
   const displayName = (user?.accountType === "BUSINESS" || user?.isBusiness) && user?.businessName
     ? user.businessName
     : user?.fullname || "-";
-  
+
   const accountName = selectedCurrency === "NGN"
-    ? (activeWallet?.accountName || displayName)
-    : (currencyAccount?.accountName || displayName);
+    ? (activeWallet?.accountName || (activeWallet as any)?.account_name || displayName)
+    : (currencyAccount?.accountName || (currencyAccount as any)?.account_name || displayName);
   const cardHolderOnly = (accountName || "").split("/").pop()?.trim() || accountName;
   const accountNumber = selectedCurrency === "NGN"
-    ? (activeWallet?.accountNumber || "-")
-    : (currencyAccount?.accountNumber || "-");
+    ? (activeWallet?.accountNumber || (activeWallet as any)?.account_number || "-")
+    : (currencyAccount?.accountNumber || (currencyAccount as any)?.account_number || "-");
   const balance = selectedCurrency === "NGN"
     ? (activeWallet?.balance || 0)
     : (currencyAccount?.balance || 0);
@@ -169,9 +169,9 @@ const AccountsContent: React.FC = () => {
     const errorText = Array.isArray(errorMessage)
       ? errorMessage.join(" ")
       : errorMessage || "Failed to create currency account";
-    
+
     // Check if error is related to KYC requirements
-    const isKYCError = 
+    const isKYCError =
       errorText.toLowerCase().includes("postal code") ||
       errorText.toLowerCase().includes("passport number") ||
       errorText.toLowerCase().includes("passport country") ||
@@ -366,12 +366,12 @@ const AccountsContent: React.FC = () => {
             onClick={() => setMenuOpen(v => !v)}
             className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg bg-[#FF6B2C] text-black text-[10px] sm:text-xs lg:text-sm font-semibold px-2.5 sm:px-3 py-1.5 uppercase whitespace-nowrap"
           >
-            <NextImage 
-              src={getCurrencyIconByString(selectedCurrency.toLowerCase()) || ""} 
-              alt="flag" 
-              width={16} 
-              height={16} 
-              className="w-4 h-4" 
+            <NextImage
+              src={getCurrencyIconByString(selectedCurrency.toLowerCase()) || ""}
+              alt="flag"
+              width={16}
+              height={16}
+              className="w-4 h-4"
             />
             <span>{selectedCurrency} Account</span>
             <FiChevronDown className="text-black/80" />
@@ -381,23 +381,23 @@ const AccountsContent: React.FC = () => {
               {allAvailableCurrencies.map((k) => {
                 const isNGN = k === "NGN";
                 const hasWallet = isNGN && user?.wallet?.some(w => (w.currency || "").toUpperCase() === k);
-                const hasCurrencyAccount = !isNGN && currencyAccounts.some((acc: WalletAccount) => 
+                const hasCurrencyAccount = !isNGN && currencyAccounts.some((acc: WalletAccount) =>
                   (acc.currency || "").toUpperCase() === k
                 );
                 const hasAccount = hasWallet || hasCurrencyAccount;
-                
+
                 return (
-            <button
+                  <button
                     key={k}
                     onClick={() => { setSelectedCurrency(k); setMenuOpen(false); }}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 ${selectedCurrency === k ? "bg-white/10" : ""}`}
                   >
-                    <NextImage 
-                      src={getCurrencyIconByString(k.toLowerCase()) || ""} 
-                      alt="flag" 
-                      width={18} 
-                      height={18} 
-                      className="w-5 h-5" 
+                    <NextImage
+                      src={getCurrencyIconByString(k.toLowerCase()) || ""}
+                      alt="flag"
+                      width={18}
+                      height={18}
+                      className="w-5 h-5"
                     />
                     <span className="text-sm flex-1 text-white">{k} Account</span>
                     {hasAccount ? (
@@ -409,19 +409,19 @@ const AccountsContent: React.FC = () => {
                         Setup
                       </span>
                     )}
-            </button>
+                  </button>
                 );
               })}
             </div>
-            )}
-          </div>
+          )}
         </div>
+      </div>
 
       {/* Account details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="w-full bg-bg-600 dark:bg-bg-1100 border border-white/10 rounded-2xl p-4 sm:p-5">
           <h3 className="text-white font-semibold mb-4">Account Details</h3>
-          
+
           {/* Show Create Account if account doesn't exist for non-NGN currencies */}
           {selectedCurrency !== "NGN" && !currencyAccount && !accountsLoading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-4">
@@ -435,8 +435,8 @@ const AccountsContent: React.FC = () => {
                 <CustomButton
                   onClick={() => setShowCreateAccount(true)}
                   className="bg-[#FF6B2C] hover:bg-[#FF7A3D] text-black px-6 py-2.5 rounded-lg text-sm font-medium"
-              >
-                Create {selectedCurrency} Account
+                >
+                  Create {selectedCurrency} Account
                 </CustomButton>
               ) : (
                 <div className="w-full max-w-sm flex flex-col gap-3">
@@ -575,7 +575,7 @@ const AccountsContent: React.FC = () => {
                           <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mt-3">
                             <p className="text-yellow-400 text-xs font-medium mb-1">{selectedCurrency} Account Required</p>
                             <p className="text-white/80 text-xs">You must have a {selectedCurrency} account before creating a virtual card. Please create a {selectedCurrency} account above first.</p>
-                </div>
+                          </div>
                         ) : !openCreateCard ? (
                           <CustomButton
                             onClick={() => setOpenCreateCard(true)}
@@ -584,109 +584,108 @@ const AccountsContent: React.FC = () => {
                             Create Virtual Card
                           </CustomButton>
                         ) : (
-                              <div className="w-full max-w-sm flex flex-col gap-3">
-                                <div className="flex flex-col gap-1">
-                                  <label className="text-white/70 text-xs">Cardholder Name</label>
-                                  <input
-                                    className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-2 px-3 text-white text-sm placeholder:text-white/50 outline-none"
-                                    placeholder="e.g., JOHN DOE"
-                                    value={cardLabel}
-                                    onChange={(e) => setCardLabel(e.target.value)}
-                                  />
-                </div>
-                                <div className="flex flex-col gap-1">
-                                  <label className="text-white/70 text-xs">Card PIN (8 digits)</label>
-                                  <input
-                                    inputMode="numeric"
-                                    className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-2 px-3 text-white text-sm placeholder:text-white/50 outline-none"
-                                    placeholder="e.g., 12345678"
-                                    value={cardPinInput}
-                                    maxLength={8}
-                                    onChange={(e) =>
-                                      setCardPinInput(e.target.value.replace(/\D/g, "").slice(0, 8))
-                                    }
-                                  />
-                                  <p className="text-white/50 text-[10px] mt-1">
-                                    Must be exactly 8 digits.
-                                  </p>
-                                </div>
-                                <div className="flex gap-2">
-                                  <CustomButton
-                                    onClick={() => {
-                                      setOpenCreateCard(false);
-                                      setCardLabel("");
-                                      setCardPinInput("");
-                                    }}
-                                    className="flex-1 bg-transparent border border-white/15 text-white rounded-lg py-2"
-                                  >
-                                    Cancel
-                                  </CustomButton>
-                                  <CustomButton
-                                    onClick={handleCreateCard}
-                                    disabled={
-                                      creatingCard ||
-                                      !cardLabel.trim() ||
-                                      !/^\d{8}$/.test(cardPinInput.trim()) ||
-                                      !currencyAccount
-                                    }
-                                    isLoading={creatingCard}
-                                    className="flex-1 bg-[#FF6B2C] hover:bg-[#FF7A3D] text-black rounded-lg py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    Create Card
-                                  </CustomButton>
-                </div>
-                              </div>
-                            )}
+                          <div className="w-full max-w-sm flex flex-col gap-3">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-white/70 text-xs">Cardholder Name</label>
+                              <input
+                                className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-2 px-3 text-white text-sm placeholder:text-white/50 outline-none"
+                                placeholder="e.g., JOHN DOE"
+                                value={cardLabel}
+                                onChange={(e) => setCardLabel(e.target.value)}
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-white/70 text-xs">Card PIN (8 digits)</label>
+                              <input
+                                inputMode="numeric"
+                                className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-2 px-3 text-white text-sm placeholder:text-white/50 outline-none"
+                                placeholder="e.g., 12345678"
+                                value={cardPinInput}
+                                maxLength={8}
+                                onChange={(e) =>
+                                  setCardPinInput(e.target.value.replace(/\D/g, "").slice(0, 8))
+                                }
+                              />
+                              <p className="text-white/50 text-[10px] mt-1">
+                                Must be exactly 8 digits.
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <CustomButton
+                                onClick={() => {
+                                  setOpenCreateCard(false);
+                                  setCardLabel("");
+                                  setCardPinInput("");
+                                }}
+                                className="flex-1 bg-transparent border border-white/15 text-white rounded-lg py-2"
+                              >
+                                Cancel
+                              </CustomButton>
+                              <CustomButton
+                                onClick={handleCreateCard}
+                                disabled={
+                                  creatingCard ||
+                                  !cardLabel.trim() ||
+                                  !/^\d{8}$/.test(cardPinInput.trim()) ||
+                                  !currencyAccount
+                                }
+                                isLoading={creatingCard}
+                                className="flex-1 bg-[#FF6B2C] hover:bg-[#FF7A3D] text-black rounded-lg py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Create Card
+                              </CustomButton>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ) : (
-                        <div className="flex flex-col gap-3">
-                          {currencyCards.map((card: any) => (
-                            <div key={card.id} className="border border-white/10 rounded-xl p-4 bg-white/5">
-                              <CardPreview
-                                variant="dark"
-                                brand={card.brand || "visa"}
-                                cardholder={card.cardholder || cardHolderOnly}
-                                maskedNumber={card.maskedNumber}
-                                expiry={formatExpiry(card)}
-                                issuerName="ValarPay"
-                                status={card.status === "ACTIVE" ? "active" : card.status === "FROZEN" ? "frozen" : "frozen"}
-                                isVirtual={true}
-                                className="h-44 sm:h-48 max-w-sm w-full"
-                              />
-                              <div className="mt-3 flex items-center justify-between">
-                <div>
-                                  <p className="text-white/60 text-xs">Balance</p>
-                                  <p className="text-white text-lg font-semibold">{card.currency} {card.balance.toLocaleString()}</p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-white/60 text-xs">Status</p>
-                                  <p className={`text-xs font-medium capitalize ${
-                                    card.status === "ACTIVE" ? "text-green-400" :
-                                    card.status === "FROZEN" ? "text-yellow-400" :
-                                    card.status === "BLOCKED" ? "text-red-400" :
-                                    "text-gray-400"
-                                  }`}>
-                                    {card.status.toLowerCase()}
-                  </p>
-                </div>
-                              </div>
-                              <div className="mt-3 flex gap-2">
-                                <CustomButton
-                                  onClick={() => {
-                                    setSelectedCard(card);
-                                  }}
-                                  className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white py-2 rounded-lg text-sm"
-                                >
-                                  View Details
-                                </CustomButton>
-                              </div>
+                    <div className="flex flex-col gap-3">
+                      {currencyCards.map((card: any) => (
+                        <div key={card.id} className="border border-white/10 rounded-xl p-4 bg-white/5">
+                          <CardPreview
+                            variant="dark"
+                            brand={card.brand || "visa"}
+                            cardholder={card.cardholder || cardHolderOnly}
+                            maskedNumber={card.maskedNumber}
+                            expiry={formatExpiry(card)}
+                            issuerName="ValarPay"
+                            status={card.status === "ACTIVE" ? "active" : card.status === "FROZEN" ? "frozen" : "frozen"}
+                            isVirtual={true}
+                            className="h-44 sm:h-48 max-w-sm w-full"
+                          />
+                          <div className="mt-3 flex items-center justify-between">
+                            <div>
+                              <p className="text-white/60 text-xs">Balance</p>
+                              <p className="text-white text-lg font-semibold">{card.currency} {card.balance.toLocaleString()}</p>
                             </div>
-                          ))}
+                            <div className="text-right">
+                              <p className="text-white/60 text-xs">Status</p>
+                              <p className={`text-xs font-medium capitalize ${card.status === "ACTIVE" ? "text-green-400" :
+                                  card.status === "FROZEN" ? "text-yellow-400" :
+                                    card.status === "BLOCKED" ? "text-red-400" :
+                                      "text-gray-400"
+                                }`}>
+                                {card.status.toLowerCase()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="mt-3 flex gap-2">
+                            <CustomButton
+                              onClick={() => {
+                                setSelectedCard(card);
+                              }}
+                              className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white py-2 rounded-lg text-sm"
+                            >
+                              View Details
+                            </CustomButton>
+                          </div>
                         </div>
-                      )}
+                      ))}
                     </div>
                   )}
+                </div>
+              )}
 
               {/* Virtual Cards - For EUR and GBP (Not Available Yet) */}
               {(selectedCurrency === "EUR" || selectedCurrency === "GBP") && (
@@ -722,14 +721,14 @@ const AccountsContent: React.FC = () => {
               </div>
               <div className="text-xs text-white/70 space-y-0.5">
                 <p>
-                  Daily Transaction Limit: ₦{user.dailyCummulativeTransactionLimit?.toLocaleString() || 
-                    (user.tierLevel === "one" ? "1,000,000" : 
-                     user.tierLevel === "two" ? "5,000,000" : "Unlimited")}
+                  Daily Transaction Limit: ₦{user.dailyCummulativeTransactionLimit?.toLocaleString() ||
+                    (user.tierLevel === "one" ? "1,000,000" :
+                      user.tierLevel === "two" ? "5,000,000" : "Unlimited")}
                 </p>
                 <p>
-                  Balance Limit: ₦{user.cummulativeBalanceLimit?.toLocaleString() || 
-                    (user.tierLevel === "one" ? "5,000,000" : 
-                     user.tierLevel === "two" ? "10,000,000" : "Unlimited")}
+                  Balance Limit: ₦{user.cummulativeBalanceLimit?.toLocaleString() ||
+                    (user.tierLevel === "one" ? "5,000,000" :
+                      user.tierLevel === "two" ? "10,000,000" : "Unlimited")}
                 </p>
               </div>
             </div>
@@ -740,13 +739,12 @@ const AccountsContent: React.FC = () => {
             <div className={`rounded-xl p-3 transition-all ${tier1Active ? "border-2 border-[#FF6B2C] bg-[#FF6B2C]/10 shadow-lg shadow-[#FF6B2C]/20" : "border border-white/10 bg-white/5"}`}>
               <div className="flex items-center justify-between">
                 <p className="text-white font-semibold">Tier 1</p>
-                <span className={`text-xs px-2 py-1 rounded-full border ${
-                  tier1Active 
+                <span className={`text-xs px-2 py-1 rounded-full border ${tier1Active
                     ? "border-[#FF6B2C] bg-[#FF6B2C]/20 text-[#FF6B2C] font-semibold"
                     : tier1Completed
-                    ? "border-green-500/20 bg-green-500/10 text-green-400"
-                    : "border-gray-500/20 bg-gray-500/10 text-gray-400"
-                }`}>
+                      ? "border-green-500/20 bg-green-500/10 text-green-400"
+                      : "border-gray-500/20 bg-gray-500/10 text-gray-400"
+                  }`}>
                   {tier1Active ? "Active" : tier1Completed ? "Completed" : "Not Started"}
                 </span>
               </div>
@@ -781,15 +779,14 @@ const AccountsContent: React.FC = () => {
             <div className={`rounded-xl p-3 transition-all ${tier2Active ? "border-2 border-[#FF6B2C] bg-[#FF6B2C]/10 shadow-lg shadow-[#FF6B2C]/20" : "border border-white/10 bg-white/5"}`}>
               <div className="flex items-center justify-between">
                 <p className="text-white font-semibold">Tier 2</p>
-                <span className={`text-xs px-2 py-1 rounded-full border ${
-                  tier2Active 
+                <span className={`text-xs px-2 py-1 rounded-full border ${tier2Active
                     ? "border-[#FF6B2C] bg-[#FF6B2C]/20 text-[#FF6B2C] font-semibold"
                     : tier2Completed
-                    ? "border-green-500/20 bg-green-500/10 text-green-400"
-                    : tier2CanUpgrade
-                    ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
-                    : "border-gray-500/20 bg-gray-500/10 text-gray-400"
-                }`}>
+                      ? "border-green-500/20 bg-green-500/10 text-green-400"
+                      : tier2CanUpgrade
+                        ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
+                        : "border-gray-500/20 bg-gray-500/10 text-gray-400"
+                  }`}>
                   {tier2Active ? "Active" : tier2Completed ? "Completed" : tier2CanUpgrade ? "Available" : "Locked"}
                 </span>
               </div>
@@ -822,13 +819,12 @@ const AccountsContent: React.FC = () => {
             <div className={`rounded-xl p-3 transition-all ${tier3Active ? "border-2 border-[#FF6B2C] bg-[#FF6B2C]/10 shadow-lg shadow-[#FF6B2C]/20" : "border border-white/10 bg-white/5"}`}>
               <div className="flex items-center justify-between">
                 <p className="text-white font-semibold">Tier 3</p>
-                <span className={`text-xs px-2 py-1 rounded-full border ${
-                  tier3Active 
+                <span className={`text-xs px-2 py-1 rounded-full border ${tier3Active
                     ? "border-[#FF6B2C] bg-[#FF6B2C]/20 text-[#FF6B2C] font-semibold"
                     : tier3CanUpgrade
-                    ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
-                    : "border-gray-500/20 bg-gray-500/10 text-gray-400"
-                }`}>
+                      ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
+                      : "border-gray-500/20 bg-gray-500/10 text-gray-400"
+                  }`}>
                   {tier3Active ? "Active" : tier3CanUpgrade ? "Available" : "Locked"}
                 </span>
               </div>
@@ -899,11 +895,11 @@ const AccountsContent: React.FC = () => {
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
               <FiClock className="text-3xl text-white/40" />
-                </div>
+            </div>
             <div className="text-center">
               <p className="text-white/80 text-sm font-medium mb-1">No Recent Activity</p>
               <p className="text-white/60 text-xs">Your login history, transactions, and other activities will appear here</p>
-              </div>
+            </div>
           </div>
         )}
       </div>

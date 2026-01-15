@@ -85,9 +85,9 @@ const InternetSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // Try payAmount first, then amount as fallback (support alt keys)
     const payAmount = Number(
       (plan as any).payAmount ??
-        (plan as any).pay_amount ??
-        (plan as any).payamount ??
-        0
+      (plan as any).pay_amount ??
+      (plan as any).payamount ??
+      0
     );
     const baseAmount = Number((plan as any).amount ?? 0);
     const finalAmount = payAmount > 0 ? payAmount : baseAmount;
@@ -201,25 +201,25 @@ const InternetSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   return acc;
                 }, [])
                 .map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => {
-                    setProvider(p);
-                    setProviderOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors"
-                >
-                  {String(
-                    (p as any).planName ||
+                  <button
+                    key={p.billerCode}
+                    type="button"
+                    onClick={() => {
+                      setProvider(p);
+                      setProviderOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors"
+                  >
+                    {String(
+                      (p as any).planName ||
                       (p as any).billerName ||
                       (p as any).biller_code ||
                       (p as any).billerCode ||
                       (p as any).shortName ||
                       ""
-                  ).trim() || "Internet"}
-                </button>
-              ))
+                    ).trim() || "Internet"}
+                  </button>
+                ))
             )}
           </div>
         )}
@@ -251,9 +251,8 @@ const InternetSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           type="button"
           disabled={!provider}
           onClick={() => provider && setPlanOpen((v) => !v)}
-          className={`w-full flex items-center justify-between bg-[#F4F4F5] dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2.5 text-sm ${
-            provider ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-600 opacity-60 cursor-not-allowed"
-          }`}
+          className={`w-full flex items-center justify-between bg-[#F4F4F5] dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2.5 text-sm ${provider ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-600 opacity-60 cursor-not-allowed"
+            }`}
         >
           <span className={plan ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-600"}>
             {plan ? String((plan as any).name || "") : "Select plan"}
@@ -310,7 +309,7 @@ const InternetSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <div className="bg-[#1C1C1E] rounded-lg p-4 space-y-3">
         <div className="flex justify-between">
           <span className="text-gray-400 text-sm">Provider</span>
-            <span className="text-white text-sm font-medium">{provider ? providerLabel : "-"}</span>
+          <span className="text-white text-sm font-medium">{provider ? providerLabel : "-"}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-400 text-sm">Phone Number</span>
@@ -366,10 +365,10 @@ const InternetSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const handlePay = () => {
     if (!provider?.billerCode || !plan || !canPay) return;
-    
+
     // Show processing loader
     useGlobalModalsStore.getState().showProcessingLoaderModal();
-    
+
     payInternet({
       billerCode: provider.billerCode,
       billerNumber: phoneNumber,

@@ -75,7 +75,7 @@ const ElectricityBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) =>
   const onVerifySuccess = (data: any) => {
     const name = data?.data?.data?.customerName || data?.data?.data?.name || "";
     setVerifiedName(String(name || ""));
-    setStep("confirm");
+    // setStep("confirm");
   };
 
   const { mutate: verifyMeter, isPending: verifying, isError: verifyErr } = useVerifyElectricityNumber(
@@ -123,12 +123,34 @@ const ElectricityBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) =>
   const canNext = !!provider && !!meterType && meterNumber.length >= 6 && amount > 0;
   const canPay = canNext && walletPin.length === 4;
 
-  const providerLabel =
-    String((provider as any)?.planName || "").trim() ||
-    String((provider as any)?.shortName || "").trim() ||
-    String((provider as any)?.description || "").trim() ||
-    String((provider as any)?.billerCode || "").trim() ||
-    "Electricity";
+  const uniqueProviders = useMemo(() => {
+    if (!electricityPlans) return [];
+    const seen = new Set();
+    return electricityPlans.filter((p) => {
+      if (seen.has(p.billerCode)) return false;
+      seen.add(p.billerCode);
+      return true;
+    });
+  }, [electricityPlans]);
+
+  // Debounce verification
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (provider && meterType && meterNumber.length >= 10 && !verifiedName) {
+        verifyMeter({
+          billerCode: provider.billerCode,
+          itemCode: meterType.item_code,
+          billerNumber: meterNumber,
+        });
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [meterNumber, provider, meterType]);
+
+  const providerLabel = provider
+    ? (provider.shortName || provider.planName.replace(/Prepaid|Postpaid/gi, "").trim() || provider.description)
+    : "Electricity";
 
   return (
     <>
@@ -174,7 +196,7 @@ const ElectricityBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                         <SpinnerLoader width={18} height={18} color="#FF6B2C" /> Loading...
                       </div>
                     ) : (
-                      (electricityPlans || []).map((p) => (
+                      uniqueProviders.map((p) => (
                         <button
                           key={p.id}
                           type="button"
@@ -184,7 +206,7 @@ const ElectricityBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) =>
                           }}
                           className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors"
                         >
-                          {String((p as any).planName || (p as any).shortName || (p as any).description || "Electricity")}
+                          {String(p.shortName || p.planName.replace(/Prepaid|Postpaid/gi, "").trim() || "Electricity")}
                         </button>
                       ))
                     )}
@@ -195,15 +217,31 @@ const ElectricityBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) =>
               {/* Meter number */}
               <div className="flex flex-col gap-1">
                 <label className="text-[11px] text-gray-500 dark:text-gray-400">Meter Number</label>
-                <div className="w-full flex items-center bg-[#F4F4F5] dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2.5 text-sm">
+                <div className="w-full relative flex items-center bg-[#F4F4F5] dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2.5 text-sm">
                   <input
                     value={meterNumber}
-                    onChange={(e) => setMeterNumber(e.target.value.replace(/\D/g, "").slice(0, 13))}
+                    onChange={(e) => {
+                      setMeterNumber(e.target.value.replace(/\D/g, "").slice(0, 13));
+                      setVerifiedName("");
+                    }}
                     className="w-full bg-transparent border-none outline-none text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-600 text-sm"
                     placeholder="Enter meter number"
                     inputMode="numeric"
                   />
+                  {verifyLoading && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <SpinnerLoader width={16} height={16} color="#FF6B2C" />
+                    </div>
+                  )}
                 </div>
+                {verifiedName && (
+                  <div className="flex items-center gap-2 mt-1 px-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <p className="text-[11px] text-green-600 dark:text-green-400 font-medium">
+                      {verifiedName}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Meter type */}
@@ -337,11 +375,16 @@ const ElectricityBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) =>
             <button
               onClick={() => {
                 if (!provider || !meterType) return;
-                verifyMeter({
-                  billerCode: provider.billerCode,
-                  itemCode: meterType.item_code,
-                  billerNumber: meterNumber,
-                });
+
+                if (!verifiedName) {
+                  verifyMeter({
+                    billerCode: provider.billerCode,
+                    itemCode: meterType.item_code,
+                    billerNumber: meterNumber,
+                  });
+                } else {
+                  setStep("confirm");
+                }
               }}
               disabled={!canNext || verifyLoading}
               className="w-full px-4 py-3 rounded-full bg-[#FF6B2C] text-black font-semibold hover:bg-[#FF7A3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

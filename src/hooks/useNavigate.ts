@@ -3,6 +3,9 @@ import { useCallback, useEffect, useRef } from "react";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 
+// Configure NProgress to hide the spinner
+NProgress.configure({ showSpinner: false });
+
 type NavigationType = "push" | "replace";
 
 const useNavigate = () => {

@@ -20,21 +20,21 @@ interface TransactionReceiptProps {
     reference: string;
     description?: string;
     createdAt: string;
-    
+
     // Transfer specific fields
     recipientName?: string;
     recipientAccount?: string;
     recipientBank?: string;
     senderName?: string;
     senderAccount?: string;
-    
+
     // Bill payment specific fields
     billerName?: string;
     billerNumber?: string;
     network?: string;
     planName?: string;
     validity?: string;
-    
+
     // Additional details
     sessionId?: string;
     channel?: string;
@@ -88,7 +88,7 @@ const TransactionReceipt = ({ isOpen, onClose, transaction }: TransactionReceipt
       if (!printWindow) return;
 
       const receiptContent = document.getElementById("transaction-receipt")?.innerHTML || "";
-      
+
       printWindow.document.write(`
         <!DOCTYPE html>
         <html>
@@ -123,11 +123,11 @@ const TransactionReceipt = ({ isOpen, onClose, transaction }: TransactionReceipt
         </body>
         </html>
       `);
-      
+
       printWindow.document.close();
       printWindow.print();
       printWindow.close();
-      
+
       toast.success("Receipt ready for download");
     } catch (error) {
       toast.error("Failed to download receipt");
@@ -164,7 +164,7 @@ const TransactionReceipt = ({ isOpen, onClose, transaction }: TransactionReceipt
             className="absolute inset-0 bg-black/50"
             onClick={onClose}
           />
-          
+
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -179,7 +179,7 @@ const TransactionReceipt = ({ isOpen, onClose, transaction }: TransactionReceipt
                 </div>
                 <span className="text-white font-semibold">VALARPAY</span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <button
                   onClick={shareReceipt}
@@ -188,7 +188,7 @@ const TransactionReceipt = ({ isOpen, onClose, transaction }: TransactionReceipt
                 >
                   <IoShareOutline className="w-5 h-5" />
                 </button>
-                
+
                 <button
                   onClick={downloadReceipt}
                   disabled={isDownloading}
@@ -201,7 +201,7 @@ const TransactionReceipt = ({ isOpen, onClose, transaction }: TransactionReceipt
                     <IoDownloadOutline className="w-5 h-5" />
                   )}
                 </button>
-                
+
                 <button
                   onClick={onClose}
                   className="p-2 rounded-lg hover:bg-[#2C2C2E] text-gray-400 hover:text-white transition-colors"
@@ -224,7 +224,7 @@ const TransactionReceipt = ({ isOpen, onClose, transaction }: TransactionReceipt
                       crossOrigin="anonymous"
                       className="w-8 h-8 object-contain"
                     />
-                    <span className="text-white font-bold text-xl tracking-tight uppercase leading-none relative top-px">VALARPAY</span>
+                    <span className="text-white font-bold text-xl tracking-tight uppercase leading-none whitespace-nowrap">VALARPAY</span>
                   </div>
                   <span className="text-white/90 text-sm font-medium">Beyond Banking</span>
                 </div>
@@ -319,7 +319,7 @@ const TransactionReceipt = ({ isOpen, onClose, transaction }: TransactionReceipt
                 {/* Footer */}
                 <div className="mt-12 text-left">
                   <p className="text-[10px] text-white/70 leading-relaxed font-light">
-                    Thank you for banking with ValarPay. For support, contact us at Support@valarpay.com, 
+                    Thank you for banking with ValarPay. For support, contact us at Support@valarpay.com,
                     call +2348134146906 or Head Office: C3&C4 Suite 2nd Floor Ejison Plaza 9a New Market Road Main Market Onitsha
                   </p>
                 </div>

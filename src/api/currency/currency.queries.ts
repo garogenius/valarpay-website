@@ -62,7 +62,8 @@ export const useGetCurrencyAccountByCurrency = (currency: "USD" | "EUR" | "GBP" 
   });
 
   const accountData = data?.data?.data || data?.data;
-  const account: ICurrencyAccount | undefined = Array.isArray(accountData) ? accountData[0] : accountData;
+  const accounts: ICurrencyAccount[] = Array.isArray(accountData) ? accountData : (accountData ? [accountData] : []);
+  const account = accounts.find(acc => String(acc.currency).toUpperCase() === String(currency).toUpperCase());
 
   return { account, isPending, isError, refetch };
 };

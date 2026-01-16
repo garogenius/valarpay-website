@@ -139,8 +139,61 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Action Buttons - Premium Mobile Design - Now Outside the card */}
+      {!accountLoading && account && (
+        <div className="grid grid-cols-4 gap-2 sm:gap-4 px-2">
+          <div className="flex flex-col items-center gap-2">
+            <button
+              onClick={() => setOpenCreatePayout(true)}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C] hover:bg-[#FF7A3D] transition-all group shadow-lg flex items-center justify-center"
+            >
+              <FiSend className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+            </button>
+            <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Transfer</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <button
+              onClick={() => {
+                setPayoutDestinationType("wire");
+                setOpenCreateDestination(true);
+              }}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C] hover:bg-[#FF7A3D] transition-all group shadow-lg flex items-center justify-center"
+            >
+              <FiRepeat className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+            </button>
+            <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Destinations</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <button
+              onClick={() => {
+                SuccessToast({
+                  title: "Coming Soon",
+                  description: "The withdraw feature will be available shortly.",
+                });
+              }}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C]/50 hover:bg-[#FF7A3D]/50 transition-all group shadow-lg flex items-center justify-center cursor-not-allowed"
+            >
+              <FiArrowDown className="text-black/50 text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+            </button>
+            <span className="text-[10px] sm:text-xs font-semibold text-white/50 text-center">Withdraw</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <button
+              onClick={() => setOpenAccountsModal(true)}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C] hover:bg-[#FF7A3D] transition-all group shadow-lg flex items-center justify-center"
+            >
+              <FiUser className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+            </button>
+            <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Account</span>
+          </div>
+        </div>
+      )}
+
       {/* Account Details Card */}
-      <div className="rounded-2xl bg-bg-600 dark:bg-bg-1100 border border-white/10 p-4 sm:p-6">
+      <div className="rounded-[2.5rem] bg-bg-600 dark:bg-bg-1100 border border-white/10 p-6 sm:p-8">
         {accountLoading ? (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -161,81 +214,31 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
           </div>
         ) : account ? (
           <>
-            {/* Action Buttons - Premium Mobile Design */}
-            <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-8">
-              <div className="flex flex-col items-center gap-2">
-                <button
-                  onClick={() => setOpenCreatePayout(true)}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C] hover:bg-[#FF7A3D] transition-all group shadow-lg flex items-center justify-center"
-                >
-                  <FiSend className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
-                </button>
-                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Transfer</span>
-              </div>
-
-              <div className="flex flex-col items-center gap-2">
-                <button
-                  onClick={() => {
-                    setPayoutDestinationType("wire");
-                    setOpenCreateDestination(true);
-                  }}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C] hover:bg-[#FF7A3D] transition-all group shadow-lg flex items-center justify-center"
-                >
-                  <FiRepeat className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
-                </button>
-                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Destinations</span>
-              </div>
-
-              <div className="flex flex-col items-center gap-2">
-                <button
-                  onClick={() => {
-                    SuccessToast({
-                      title: "Coming Soon",
-                      description: "The withdraw feature will be available shortly.",
-                    });
-                  }}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C]/50 hover:bg-[#FF7A3D]/50 transition-all group shadow-lg flex items-center justify-center cursor-not-allowed"
-                >
-                  <FiArrowDown className="text-black/50 text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
-                </button>
-                <span className="text-[10px] sm:text-xs font-semibold text-white/50 text-center">Withdraw</span>
-              </div>
-
-              <div className="flex flex-col items-center gap-2">
-                <button
-                  onClick={() => setOpenAccountsModal(true)}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C] hover:bg-[#FF7A3D] transition-all group shadow-lg flex items-center justify-center"
-                >
-                  <FiUser className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
-                </button>
-                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Account</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4 mb-6">
-              <div className="flex items-center gap-3">
-                <Image
-                  src={getCurrencyIconByString(currency.toLowerCase()) || ""}
-                  alt={currency}
-                  width={40}
-                  height={40}
-                  className="w-10 h-10"
-                />
+            <div className="flex flex-col gap-6 mb-8">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 relative flex-shrink-0">
+                  <Image
+                    src={getCurrencyIconByString(currency.toLowerCase()) || ""}
+                    alt={currency}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
                 <div>
-                  <h2 className="text-white text-lg sm:text-xl font-semibold">
+                  <h2 className="text-white text-xl sm:text-2xl font-bold">
                     {account.accountName || account.label || `${currency} Account`}
                   </h2>
-                  <p className="text-white/60 text-sm">{currency} Account Details</p>
+                  <p className="text-white/60 text-sm font-medium">{currency} Account Details</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setOpenClose(true)}
                   disabled={account.balance > 0}
-                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
                   title="Close Account"
                 >
-                  <FiTrash2 className="text-lg" />
+                  <FiTrash2 className="text-xl group-hover:scale-110 transition-transform" />
                 </button>
               </div>
             </div>

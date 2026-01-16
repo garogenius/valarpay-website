@@ -1,12 +1,14 @@
 "use client";
 
 import React from "react";
-import { FiPlus, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiPlus, FiEye, FiEyeOff, FiChevronRight, FiArrowUp, FiArrowDown } from "react-icons/fi";
+import { LuWallet } from "react-icons/lu";
 import { useGetCurrencyAccounts } from "@/api/currency/currency.queries";
 import { getCurrencyIconByString } from "@/utils/utilityFunctions";
 import Image from "next/image";
 import MultiCurrencyAccountDetails from "./MultiCurrencyAccountDetails";
 import CreateCurrencyAccountModal from "@/components/modals/CreateCurrencyAccountModal";
+import images from "../../../../public/images";
 
 const MultiCurrencyContent: React.FC = () => {
   const [selectedCurrency, setSelectedCurrency] = React.useState<"USD" | "EUR" | "GBP" | null>(null);
@@ -110,53 +112,66 @@ const MultiCurrencyContent: React.FC = () => {
                     <div
                       key={account.id || account.currency}
                       onClick={() => setSelectedCurrency(currency)}
-                      className={`rounded-xl px-4 py-5 2xs:py-6 flex flex-col gap-3 sm:gap-4 cursor-pointer transition-all snap-center w-full flex-shrink-0 ${isActive ? "bg-[#FF6B2C] text-white" : "bg-bg-600 dark:bg-bg-1100"
+                      className={`rounded-[2.5rem] p-6 2xs:p-8 flex flex-col cursor-pointer transition-all snap-center w-full flex-shrink-0 relative overflow-hidden min-h-[220px] shadow-xl ${isActive ? "bg-[#D4B139] text-black" : "bg-bg-600 dark:bg-bg-1100"
                         }`}
                     >
-                      {/* Header: currency icon + account label */}
-                      <div className={`flex items-center gap-2 ${isActive ? "text-white" : "text-text-200 dark:text-text-800"}`}>
-                        <Image
-                          src={getCurrencyIconByString(currency.toLowerCase()) || ""}
-                          alt={currency}
-                          width={32}
-                          height={32}
-                          className="w-8 h-8"
-                        />
-                        <p className="text-sm sm:text-base font-semibold uppercase flex-1">
-                          {account.accountName || account.label || `${currency} Account`}
-                        </p>
+                      {/* Top Bar */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isActive ? "bg-black/10" : "bg-white/10"}`}>
+                            <LuWallet className={`text-xl ${isActive ? "text-black" : "text-text-200 dark:text-text-800"}`} />
+                          </div>
+                          <span className={`text-sm font-medium ${isActive ? "text-black/80" : "text-text-200 dark:text-text-800"}`}>
+                            Main Balance
+                          </span>
+                        </div>
+                        <div className={`flex items-center gap-1 text-sm font-medium ${isActive ? "text-black/80" : "text-primary"}`}>
+                          <span>Transaction History</span>
+                          <FiChevronRight className="text-lg" />
+                        </div>
                       </div>
 
-                      {/* Subtitle + eye toggle */}
-                      <div className="flex items-center gap-2 font-semibold">
-                        <p className={`text-xs sm:text-sm ${isActive ? "text-white/90" : "text-text-200 dark:text-text-800"}`}>
-                          {currency} Balance
-                        </p>
-                        {isVisible ? (
-                          <FiEyeOff
+                      {/* Middle Section: Balance + Actions */}
+                      <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-3">
+                          <h2 className="text-4xl 2xs:text-5xl font-bold tracking-tight">
+                            {isVisible
+                              ? `${getCurrencySymbol(currency)}${formatBalance(balance, currency)}`
+                              : "••••••"}
+                          </h2>
+                          <button
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleBalanceVisibility(currency);
                             }}
-                            className={`cursor-pointer text-base ${isActive ? "text-white" : "text-text-200 dark:text-text-800"}`}
-                          />
-                        ) : (
-                          <FiEye
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleBalanceVisibility(currency);
-                            }}
-                            className={`cursor-pointer text-base ${isActive ? "text-white" : "text-text-200 dark:text-text-800"}`}
-                          />
-                        )}
+                            className={`p-2 rounded-full hover:bg-black/5 transition-colors ${isActive ? "text-black" : "text-text-200 dark:text-text-800"}`}
+                          >
+                            {isVisible ? <FiEyeOff className="text-xl" /> : <FiEye className="text-xl" />}
+                          </button>
+                        </div>
+                        <button className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isActive ? "bg-black text-white hover:bg-black/80" : "bg-primary text-black"}`}>
+                          <FiPlus className="text-2xl" />
+                        </button>
                       </div>
 
-                      {/* Amount */}
-                      <p className={`text-2xl sm:text-3xl font-semibold ${isActive ? "text-white" : "text-text-400"}`}>
-                        {isVisible
-                          ? `${getCurrencySymbol(currency)} ${formatBalance(balance, currency)}`
-                          : "---"}
-                      </p>
+                      {/* Divider */}
+                      <div className={`h-[1px] w-full mb-6 ${isActive ? "bg-black/10" : "bg-white/10"}`} />
+
+                      {/* Bottom Section: Rates + Conversion */}
+                      <div className="flex items-center justify-between mt-auto">
+                        <div className="space-y-1">
+                          <div className={`text-sm font-medium ${isActive ? "text-black" : "text-text-200 dark:text-text-800"}`}>
+                            {currency === "GBP" ? "GBP - NGN" : currency === "EUR" ? "EUR - NGN" : "USD - NGN"} = $1.580
+                          </div>
+                          <div className="flex items-center gap-1 text-[10px] font-bold text-green-700">
+                            <FiArrowUp className="text-xs" />
+                            <span>0.34% today</span>
+                          </div>
+                        </div>
+                        <button className={`px-6 py-2.5 rounded-full text-sm font-bold uppercase transition-transform hover:scale-105 ${isActive ? "bg-black text-white" : "bg-white/10 text-white"}`}>
+                          {currency} Conversion
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -178,6 +193,19 @@ const MultiCurrencyContent: React.FC = () => {
                 )}
               </>
             )}
+          </div>
+          {/* Pagination Dots */}
+          <div className="flex justify-center gap-2 mt-6 sm:hidden">
+            {currencyAccounts.map((account: any, i) => (
+              <div
+                key={i}
+                onClick={() => setSelectedCurrency(String(account.currency).toUpperCase() as any)}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${selectedCurrency === String(account.currency).toUpperCase()
+                  ? "bg-[#D4B139] w-8"
+                  : "bg-white/20 w-2"
+                  }`}
+              />
+            ))}
           </div>
         </div>
 

@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { FiEdit2, FiTrash2, FiPlus, FiCopy, FiArrowDownLeft, FiArrowUpRight, FiCheckCircle, FiXCircle, FiClock } from "react-icons/fi";
-import { LuCopy } from "react-icons/lu";
+import { FiEdit2, FiTrash2, FiPlus, FiCopy, FiArrowDownLeft, FiArrowUpRight, FiCheckCircle, FiXCircle, FiClock, FiSend, FiRepeat, FiArrowDown, FiUser } from "react-icons/fi";
+import { LuCopy, LuWallet } from "react-icons/lu";
 import {
+  useGetCurrencyAccounts,
   useGetCurrencyAccountByCurrency,
   useGetCurrencyAccountTransactions,
   useGetCurrencyAccountDeposits,
@@ -60,6 +61,8 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
     { limit, offset: payoutsPage * limit }
   );
   const { destinations, isPending: destinationsLoading, refetch: refetchDestinations } = useGetCurrencyAccountPayoutDestinations(currency);
+  const { accounts } = useGetCurrencyAccounts();
+  const [openAccountsModal, setOpenAccountsModal] = React.useState(false);
 
   const formatDate = (dateString: string) => {
     return formatDistanceToNow(new Date(dateString), { addSuffix: true });
@@ -239,35 +242,52 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
               {/* Status and Currency cards hidden as requested */}
             </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-              <CustomButton
-                onClick={() => setOpenCreatePayout(true)}
-                className="w-full bg-[#FF6B2C] hover:bg-[#FF7A3D] text-black font-medium py-3 rounded-xl flex items-center justify-center gap-2 border-none"
-              >
-                <FiArrowUpRight className="text-lg" />
-                <span>Payout</span>
-              </CustomButton>
-              <CustomButton
-                onClick={() => {
-                  setPayoutDestinationType("wire");
-                  setOpenCreateDestination(true);
-                }}
-                className="w-full bg-white/10 hover:bg-white/15 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 border border-white/10 transition-colors"
-              >
-                <FiPlus className="text-lg" />
-                <span>Payout Destination</span>
-              </CustomButton>
-              <CustomButton
-                onClick={() => {
-                  setPayoutDestinationType("stablecoin");
-                  setOpenCreateDestination(true);
-                }}
-                className="w-full bg-white/10 hover:bg-white/15 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 border border-white/10 transition-colors"
-              >
-                <FiPlus className="text-lg" />
-                <span>Stablecoin</span>
-              </CustomButton>
+            {/* Action Buttons - Premium Mobile Design */}
+            <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-8">
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => setOpenCreatePayout(true)}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D4B139] hover:bg-[#E5C14A] transition-all group shadow-lg flex items-center justify-center"
+                >
+                  <FiSend className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+                </button>
+                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Transfer</span>
+              </div>
+
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => {
+                    setPayoutDestinationType("wire");
+                    setOpenCreateDestination(true);
+                  }}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D4B139] hover:bg-[#E5C14A] transition-all group shadow-lg flex items-center justify-center"
+                >
+                  <FiRepeat className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+                </button>
+                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Destinations</span>
+              </div>
+
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => {
+                    setOpenCreatePayout(true);
+                  }}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D4B139] hover:bg-[#E5C14A] transition-all group shadow-lg flex items-center justify-center"
+                >
+                  <FiArrowDown className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+                </button>
+                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Withdraw</span>
+              </div>
+
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => setOpenAccountsModal(true)}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D4B139] hover:bg-[#E5C14A] transition-all group shadow-lg flex items-center justify-center"
+                >
+                  <FiUser className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+                </button>
+                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Account</span>
+              </div>
             </div>
 
             {/* Copy All Details Button */}
@@ -465,10 +485,67 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
             destinations={destinations || []}
             onSuccess={handleCreatePayoutSuccess}
           />
+          <CurrencyAccountsModal
+            isOpen={openAccountsModal}
+            onClose={() => setOpenAccountsModal(false)}
+            accounts={accounts || []}
+          />
         </>
       )}
     </div>
   );
 };
+
+// Internal Modal to list accounts
+const CurrencyAccountsModal: React.FC<{ isOpen: boolean; onClose: () => void; accounts: any[] }> = ({ isOpen, onClose, accounts }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-bg-1100 border border-white/10 rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <h3 className="text-white text-xl font-bold">Currency Accounts</h3>
+          <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
+            <FiPlus className="text-2xl rotate-45" />
+          </button>
+        </div>
+        <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+          {accounts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
+                <LuWallet className="text-3xl text-white/20" />
+              </div>
+              <p className="text-white/40 font-medium">No accounts found</p>
+            </div>
+          ) : (
+            accounts.map((acc: any) => (
+              <div key={acc.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4 group hover:bg-white/10 transition-all cursor-pointer">
+                <div className="w-14 h-14 rounded-xl bg-[#D4B139]/20 flex items-center justify-center shrink-0">
+                  <span className="text-[#D4B139] font-extrabold text-lg">{acc.currency}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-bold text-lg truncate mb-0.5">{acc.accountName || acc.label || `${acc.currency} Account`}</p>
+                  <p className="text-white/40 text-sm font-mono tracking-wider">{acc.accountNumber || (acc as any).account_number || "No Account Number"}</p>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <FiCopy className="text-white/60 text-sm" />
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <div className="p-6">
+          <button
+            onClick={onClose}
+            className="w-full py-4 rounded-2xl bg-[#D4B139] text-black font-extrabold text-lg hover:bg-[#E5C14A] transition-all active:scale-[0.98] shadow-lg shadow-[#D4B139]/10"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default MultiCurrencyAccountDetails;

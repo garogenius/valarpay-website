@@ -112,7 +112,7 @@ const MultiCurrencyContent: React.FC = () => {
                     <div
                       key={account.id || account.currency}
                       onClick={() => setSelectedCurrency(currency)}
-                      className={`rounded-[2.5rem] p-6 2xs:p-8 flex flex-col cursor-pointer transition-all snap-center w-full flex-shrink-0 relative overflow-hidden min-h-[220px] shadow-xl ${isActive ? "bg-[#D4B139] text-black" : "bg-bg-600 dark:bg-bg-1100"
+                      className={`rounded-[2.5rem] p-6 2xs:p-8 flex flex-col cursor-pointer transition-all snap-center w-full flex-shrink-0 relative overflow-hidden min-h-[220px] shadow-xl ${isActive ? "bg-[#FF6B2C] text-black" : "bg-bg-600 dark:bg-bg-1100"
                         }`}
                     >
                       {/* Top Bar */}
@@ -201,7 +201,7 @@ const MultiCurrencyContent: React.FC = () => {
                 key={i}
                 onClick={() => setSelectedCurrency(String(account.currency).toUpperCase() as any)}
                 className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${selectedCurrency === String(account.currency).toUpperCase()
-                  ? "bg-[#D4B139] w-8"
+                  ? "bg-[#FF6B2C] w-8"
                   : "bg-white/20 w-2"
                   }`}
               />

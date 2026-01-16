@@ -82,7 +82,7 @@ const GetVirtualCardModal: React.FC<GetVirtualCardModalProps> = ({
         currency: "USD",
         cardholderName,
         pin: cardPin.trim(),
-        initialBalance: amount ? Number(amount) : undefined,
+        fundingAmount: amount ? Number(amount) : undefined,
       });
       return;
     }

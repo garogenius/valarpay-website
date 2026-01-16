@@ -61,7 +61,8 @@ export const useGetCurrencyAccountByCurrency = (currency: "USD" | "EUR" | "GBP" 
     staleTime: 60000, // Cache for 60 seconds to prevent excessive calls
   });
 
-  const account: ICurrencyAccount | undefined = data?.data?.data || data?.data;
+  const accountData = data?.data?.data || data?.data;
+  const account: ICurrencyAccount | undefined = Array.isArray(accountData) ? accountData[0] : accountData;
 
   return { account, isPending, isError, refetch };
 };

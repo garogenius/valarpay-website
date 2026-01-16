@@ -161,7 +161,58 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
           </div>
         ) : account ? (
           <>
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+            {/* Action Buttons - Premium Mobile Design */}
+            <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-8">
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => setOpenCreatePayout(true)}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C] hover:bg-[#FF7A3D] transition-all group shadow-lg flex items-center justify-center"
+                >
+                  <FiSend className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+                </button>
+                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Transfer</span>
+              </div>
+
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => {
+                    setPayoutDestinationType("wire");
+                    setOpenCreateDestination(true);
+                  }}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C] hover:bg-[#FF7A3D] transition-all group shadow-lg flex items-center justify-center"
+                >
+                  <FiRepeat className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+                </button>
+                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Destinations</span>
+              </div>
+
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => {
+                    SuccessToast({
+                      title: "Coming Soon",
+                      description: "The withdraw feature will be available shortly.",
+                    });
+                  }}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C]/50 hover:bg-[#FF7A3D]/50 transition-all group shadow-lg flex items-center justify-center cursor-not-allowed"
+                >
+                  <FiArrowDown className="text-black/50 text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+                </button>
+                <span className="text-[10px] sm:text-xs font-semibold text-white/50 text-center">Withdraw</span>
+              </div>
+
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => setOpenAccountsModal(true)}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF6B2C] hover:bg-[#FF7A3D] transition-all group shadow-lg flex items-center justify-center"
+                >
+                  <FiUser className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
+                </button>
+                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Account</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 mb-6">
               <div className="flex items-center gap-3">
                 <Image
                   src={getCurrencyIconByString(currency.toLowerCase()) || ""}
@@ -177,15 +228,14 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
                   <p className="text-white/60 text-sm">{currency} Account Details</p>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {/* Edit Label button removed */}
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setOpenClose(true)}
                   disabled={account.balance > 0}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Close Account"
                 >
-                  <FiTrash2 className="text-base" />
-                  <span className="hidden sm:inline">Close Account</span>
+                  <FiTrash2 className="text-lg" />
                 </button>
               </div>
             </div>
@@ -240,54 +290,6 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
                 </div>
               </div>
               {/* Status and Currency cards hidden as requested */}
-            </div>
-
-            {/* Action Buttons - Premium Mobile Design */}
-            <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-8">
-              <div className="flex flex-col items-center gap-2">
-                <button
-                  onClick={() => setOpenCreatePayout(true)}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D4B139] hover:bg-[#E5C14A] transition-all group shadow-lg flex items-center justify-center"
-                >
-                  <FiSend className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
-                </button>
-                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Transfer</span>
-              </div>
-
-              <div className="flex flex-col items-center gap-2">
-                <button
-                  onClick={() => {
-                    setPayoutDestinationType("wire");
-                    setOpenCreateDestination(true);
-                  }}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D4B139] hover:bg-[#E5C14A] transition-all group shadow-lg flex items-center justify-center"
-                >
-                  <FiRepeat className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
-                </button>
-                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Destinations</span>
-              </div>
-
-              <div className="flex flex-col items-center gap-2">
-                <button
-                  onClick={() => {
-                    setOpenCreatePayout(true);
-                  }}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D4B139] hover:bg-[#E5C14A] transition-all group shadow-lg flex items-center justify-center"
-                >
-                  <FiArrowDown className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
-                </button>
-                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Withdraw</span>
-              </div>
-
-              <div className="flex flex-col items-center gap-2">
-                <button
-                  onClick={() => setOpenAccountsModal(true)}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D4B139] hover:bg-[#E5C14A] transition-all group shadow-lg flex items-center justify-center"
-                >
-                  <FiUser className="text-black text-xl sm:text-2xl group-hover:scale-110 transition-transform" />
-                </button>
-                <span className="text-[10px] sm:text-xs font-semibold text-white text-center">Account</span>
-              </div>
             </div>
 
             {/* Copy All Details Button */}
@@ -521,8 +523,8 @@ const CurrencyAccountsModal: React.FC<{ isOpen: boolean; onClose: () => void; ac
           ) : (
             accounts.map((acc: any) => (
               <div key={acc.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4 group hover:bg-white/10 transition-all cursor-pointer">
-                <div className="w-14 h-14 rounded-xl bg-[#D4B139]/20 flex items-center justify-center shrink-0">
-                  <span className="text-[#D4B139] font-extrabold text-lg">{acc.currency}</span>
+                <div className="w-14 h-14 rounded-xl bg-[#FF6B2C]/20 flex items-center justify-center shrink-0">
+                  <span className="text-[#FF6B2C] font-extrabold text-lg">{acc.currency}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-bold text-lg truncate mb-0.5">{acc.accountName || acc.label || `${acc.currency} Account`}</p>
@@ -538,7 +540,7 @@ const CurrencyAccountsModal: React.FC<{ isOpen: boolean; onClose: () => void; ac
         <div className="p-6">
           <button
             onClick={onClose}
-            className="w-full py-4 rounded-2xl bg-[#D4B139] text-black font-extrabold text-lg hover:bg-[#E5C14A] transition-all active:scale-[0.98] shadow-lg shadow-[#D4B139]/10"
+            className="w-full py-4 rounded-2xl bg-[#FF6B2C] text-black font-extrabold text-lg hover:bg-[#FF7A3D] transition-all active:scale-[0.98] shadow-lg shadow-[#FF6B2C]/10"
           >
             Done
           </button>

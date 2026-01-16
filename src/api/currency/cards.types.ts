@@ -26,7 +26,7 @@ export interface ICreateCardPayload {
   currency: CardCurrency;
   cardholderName: string;
   pin: string; // 8-digit card PIN required by backend
-  initialBalance?: number;
+  fundingAmount?: number;
 }
 
 export interface IUpdateCardPayload {

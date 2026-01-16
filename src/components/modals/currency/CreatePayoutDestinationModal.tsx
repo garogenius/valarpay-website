@@ -14,6 +14,7 @@ interface CreatePayoutDestinationModalProps {
   onClose: () => void;
   account: ICurrencyAccount;
   onSuccess: () => void;
+  initialType?: "wire" | "nip" | "stablecoin";
 }
 
 const CreatePayoutDestinationModal: React.FC<CreatePayoutDestinationModalProps> = ({
@@ -21,8 +22,9 @@ const CreatePayoutDestinationModal: React.FC<CreatePayoutDestinationModalProps> 
   onClose,
   account,
   onSuccess,
+  initialType = "wire",
 }) => {
-  const [type, setType] = React.useState<"wire" | "nip" | "stablecoin">("wire");
+  const [type, setType] = React.useState<"wire" | "nip" | "stablecoin">(initialType);
   const [accountNumber, setAccountNumber] = React.useState("");
   const [accountName, setAccountName] = React.useState("");
   const [bankName, setBankName] = React.useState("");
@@ -37,7 +39,7 @@ const CreatePayoutDestinationModal: React.FC<CreatePayoutDestinationModalProps> 
 
   React.useEffect(() => {
     if (isOpen) {
-      setType("wire");
+      setType(initialType);
       setAccountNumber("");
       setAccountName("");
       setBankName("");
@@ -47,7 +49,7 @@ const CreatePayoutDestinationModal: React.FC<CreatePayoutDestinationModalProps> 
   }, [isOpen]);
 
   const handleClose = () => {
-    setType("wire");
+    setType(initialType);
     setAccountNumber("");
     setAccountName("");
     setBankName("");
@@ -135,11 +137,10 @@ const CreatePayoutDestinationModal: React.FC<CreatePayoutDestinationModalProps> 
                   key={t.value}
                   type="button"
                   onClick={() => setType(t.value as any)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    type === t.value
-                      ? "bg-primary text-black"
-                      : "bg-white/5 text-white/70 hover:bg-white/10"
-                  }`}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${type === t.value
+                    ? "bg-primary text-black"
+                    : "bg-white/5 text-white/70 hover:bg-white/10"
+                    }`}
                 >
                   {t.label}
                 </button>

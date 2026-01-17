@@ -22,11 +22,10 @@ export interface IVirtualCard {
 }
 
 export interface ICreateCardPayload {
-  walletId: string;
   currency: CardCurrency;
-  cardholderName: string;
-  pin: string; // 8-digit card PIN required by backend
-  fundingAmount?: number;
+  label: string;
+  fundingAmount: number;
+  pin: string; // 8-digit card PIN
 }
 
 export interface IUpdateCardPayload {

@@ -178,8 +178,6 @@ const VirtualCardSection = () => {
               setStoredCardId(localStorage.getItem("usdVirtualCardId") || "");
             }
           }}
-          walletId={usdWallet?.id || ""}
-          cardholderName={user?.fullname || "Card Holder"}
         />
       </>
     );
@@ -190,13 +188,13 @@ const VirtualCardSection = () => {
       <div className="w-full flex flex-col gap-6">
         <div className="w-full flex items-center justify-center px-4">
           <div className="w-full max-w-[560px]">
-          <VirtualCardDesign
-            cardNumber={cardNumber}
-            cardholderName={cardholderName}
-            expiryDate={expiryDate}
-            cvv={cvv}
-            showDetails={showDetails}
-          />
+            <VirtualCardDesign
+              cardNumber={cardNumber}
+              cardholderName={cardholderName}
+              expiryDate={expiryDate}
+              cvv={cvv}
+              showDetails={showDetails}
+            />
           </div>
         </div>
 

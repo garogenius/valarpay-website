@@ -13,8 +13,6 @@ interface GetVirtualCardModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  walletId: string;
-  cardholderName: string;
 }
 
 type Step = "amount" | "confirmation" | "success";
@@ -23,8 +21,6 @@ const GetVirtualCardModal: React.FC<GetVirtualCardModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
-  walletId,
-  cardholderName,
 }) => {
   const [step, setStep] = useState<Step>("amount");
   const [amount, setAmount] = useState("");
@@ -78,11 +74,10 @@ const GetVirtualCardModal: React.FC<GetVirtualCardModalProps> = ({
 
     if (step === "confirmation") {
       createCard({
-        walletId,
         currency: "USD",
-        cardholderName,
+        label: cardName.trim() || "My Shopping Card",
+        fundingAmount: amount ? Number(amount) : 0,
         pin: cardPin.trim(),
-        fundingAmount: amount ? Number(amount) : undefined,
       });
       return;
     }

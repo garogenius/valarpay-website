@@ -76,7 +76,7 @@ export const getCurrencyAccountTransactionsRequest = async (
   if (query.limit) queryParams.set("limit", query.limit.toString());
   if (query.offset) queryParams.set("offset", query.offset.toString());
   return request({
-    url: `/api/v1/currency/accounts/${currency}/transactions?${queryParams.toString()}`,
+    url: `/currency/accounts/${currency}/transactions?${queryParams.toString()}`,
     method: "get",
   });
 };
@@ -89,7 +89,7 @@ export const getCurrencyAccountDepositsRequest = async (
   if (query.limit) queryParams.set("limit", query.limit.toString());
   if (query.offset) queryParams.set("offset", query.offset.toString());
   return request({
-    url: `/api/v1/currency/accounts/${currency}/deposits?${queryParams.toString()}`,
+    url: `/currency/accounts/${currency}/deposits?${queryParams.toString()}`,
     method: "get",
   });
 };
@@ -102,7 +102,7 @@ export const getCurrencyAccountPayoutsRequest = async (
   if (query.limit) queryParams.set("limit", query.limit.toString());
   if (query.offset) queryParams.set("offset", query.offset.toString());
   return request({
-    url: `/api/v1/currency/accounts/${currency}/payouts?${queryParams.toString()}`,
+    url: `/currency/accounts/${currency}/payouts?${queryParams.toString()}`,
     method: "get",
   });
 };
@@ -111,7 +111,7 @@ export const getCurrencyAccountPayoutDestinationsRequest = async (
   currency: "USD" | "EUR" | "GBP" | "NGN"
 ) => {
   return request({
-    url: `/api/v1/currency/accounts/${currency}/payout-destinations`,
+    url: `/currency/accounts/${currency}/payout-destinations`,
     method: "get",
   });
 };
@@ -121,7 +121,7 @@ export const createPayoutDestinationRequest = async (
   data: ICreatePayoutDestination
 ) => {
   return request({
-    url: `/api/v1/currency/accounts/${currency}/payout-destinations`,
+    url: `/currency/accounts/${currency}/payout-destinations`,
     method: "post",
     data,
   });
@@ -132,7 +132,7 @@ export const createPayoutRequest = async (
   data: ICreatePayout
 ) => {
   return request({
-    url: `/api/v1/currency/accounts/${currency}/payouts`,
+    url: `/currency/accounts/${currency}/payouts`,
     method: "post",
     data,
   });

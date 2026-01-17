@@ -53,11 +53,11 @@ export const useGetCurrencyAccounts = () => {
   return { accounts, isPending, isError, refetch };
 };
 
-export const useGetCurrencyAccountByCurrency = (currency: "USD" | "EUR" | "GBP" | undefined) => {
+export const useGetCurrencyAccountByCurrency = (currency: "USD" | "EUR" | "GBP" | "NGN" | undefined) => {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["currency-account", currency],
     queryFn: () => getCurrencyAccountByCurrencyRequest(currency!),
-    enabled: !!currency && (currency === "USD" || currency === "EUR" || currency === "GBP"),
+    enabled: !!currency && (currency === "USD" || currency === "EUR" || currency === "GBP" || currency === "NGN"),
     staleTime: 60000, // Cache for 60 seconds to prevent excessive calls
   });
 
@@ -127,12 +127,12 @@ export const useCloseCurrencyAccount = (
 };
 
 export const useGetCurrencyAccountTransactions = (
-  currency: "" | "USD" | "EUR" | "GBP",
+  currency: "" | "USD" | "EUR" | "GBP" | "NGN",
   query: IGetCurrencyAccountTransactionsQuery
 ) => {
   const { data, isPending, isError } = useQuery({
     queryKey: ["currency-account-transactions", currency, query],
-    queryFn: () => getCurrencyAccountTransactionsRequest(currency as "USD" | "EUR" | "GBP", query),
+    queryFn: () => getCurrencyAccountTransactionsRequest(currency as "USD" | "EUR" | "GBP" | "NGN", query),
     enabled: !!currency,
   });
 
@@ -143,7 +143,7 @@ export const useGetCurrencyAccountTransactions = (
 };
 
 export const useGetCurrencyAccountDeposits = (
-  currency: "USD" | "EUR" | "GBP",
+  currency: "USD" | "EUR" | "GBP" | "NGN",
   query: IGetCurrencyAccountDepositsQuery
 ) => {
   const { data, isPending, isError } = useQuery({
@@ -159,7 +159,7 @@ export const useGetCurrencyAccountDeposits = (
 };
 
 export const useGetCurrencyAccountPayouts = (
-  currency: "USD" | "EUR" | "GBP",
+  currency: "USD" | "EUR" | "GBP" | "NGN",
   query: IGetCurrencyAccountPayoutsQuery
 ) => {
   const { data, isPending, isError } = useQuery({
@@ -174,7 +174,7 @@ export const useGetCurrencyAccountPayouts = (
   return { payouts, count, isPending, isError };
 };
 
-export const useGetCurrencyAccountPayoutDestinations = (currency: "USD" | "EUR" | "GBP") => {
+export const useGetCurrencyAccountPayoutDestinations = (currency: "USD" | "EUR" | "GBP" | "NGN") => {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["currency-account-payout-destinations", currency],
     queryFn: () => getCurrencyAccountPayoutDestinationsRequest(currency),
@@ -196,7 +196,7 @@ export const useCreateCurrencyAccountPayoutDestination = (
       currency,
       formdata,
     }: {
-      currency: "USD" | "EUR" | "GBP";
+      currency: "USD" | "EUR" | "GBP" | "NGN";
       formdata: ICreatePayoutDestination;
     }) => createPayoutDestinationRequest(currency, formdata),
     onError,
@@ -217,7 +217,7 @@ export const useCreateCurrencyAccountPayout = (
       currency,
       formdata,
     }: {
-      currency: "USD" | "EUR" | "GBP";
+      currency: "USD" | "EUR" | "GBP" | "NGN";
       formdata: ICreatePayout;
     }) => createPayoutRequest(currency, formdata),
     onError,
@@ -230,7 +230,7 @@ export const useCreateCurrencyAccountPayout = (
   });
 };
 
-export const useGetBanksByCurrency = (currency: "USD" | "EUR" | "GBP") => {
+export const useGetBanksByCurrency = (currency: "USD" | "EUR" | "GBP" | "NGN") => {
   const { data, isPending, isError } = useQuery({
     queryKey: ["banks", currency],
     queryFn: async () => {
@@ -251,7 +251,7 @@ export const useGetTransferFee = ({
   accountNumber,
   enabled = true,
 }: {
-  currency: "USD" | "EUR" | "GBP";
+  currency: "USD" | "EUR" | "GBP" | "NGN";
   amount: number;
   accountNumber: string;
   enabled?: boolean;

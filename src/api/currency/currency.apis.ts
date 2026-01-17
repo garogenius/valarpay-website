@@ -26,7 +26,7 @@ export const getCurrencyAccountsRequest = async () => {
   });
 };
 
-export const getCurrencyAccountByCurrencyRequest = async (currency: "USD" | "EUR" | "GBP") => {
+export const getCurrencyAccountByCurrencyRequest = async (currency: "USD" | "EUR" | "GBP" | "NGN") => {
   return request({
     url: `/wallet/accounts?currency=${currency}`,
     method: "get",
@@ -69,70 +69,70 @@ export const closeCurrencyAccountRequest = async (
 };
 
 export const getCurrencyAccountTransactionsRequest = async (
-  currency: "USD" | "EUR" | "GBP",
+  currency: "USD" | "EUR" | "GBP" | "NGN",
   query: IGetCurrencyAccountTransactionsQuery
 ) => {
   const queryParams = new URLSearchParams();
   if (query.limit) queryParams.set("limit", query.limit.toString());
   if (query.offset) queryParams.set("offset", query.offset.toString());
   return request({
-    url: `/currency/accounts/${currency}/transactions?${queryParams.toString()}`,
+    url: `/api/v1/currency/accounts/${currency}/transactions?${queryParams.toString()}`,
     method: "get",
   });
 };
 
 export const getCurrencyAccountDepositsRequest = async (
-  currency: "USD" | "EUR" | "GBP",
+  currency: "USD" | "EUR" | "GBP" | "NGN",
   query: IGetCurrencyAccountDepositsQuery
 ) => {
   const queryParams = new URLSearchParams();
   if (query.limit) queryParams.set("limit", query.limit.toString());
   if (query.offset) queryParams.set("offset", query.offset.toString());
   return request({
-    url: `/currency/accounts/${currency}/deposits?${queryParams.toString()}`,
+    url: `/api/v1/currency/accounts/${currency}/deposits?${queryParams.toString()}`,
     method: "get",
   });
 };
 
 export const getCurrencyAccountPayoutsRequest = async (
-  currency: "USD" | "EUR" | "GBP",
+  currency: "USD" | "EUR" | "GBP" | "NGN",
   query: IGetCurrencyAccountPayoutsQuery
 ) => {
   const queryParams = new URLSearchParams();
   if (query.limit) queryParams.set("limit", query.limit.toString());
   if (query.offset) queryParams.set("offset", query.offset.toString());
   return request({
-    url: `/currency/accounts/${currency}/payouts?${queryParams.toString()}`,
+    url: `/api/v1/currency/accounts/${currency}/payouts?${queryParams.toString()}`,
     method: "get",
   });
 };
 
 export const getCurrencyAccountPayoutDestinationsRequest = async (
-  currency: "USD" | "EUR" | "GBP"
+  currency: "USD" | "EUR" | "GBP" | "NGN"
 ) => {
   return request({
-    url: `/currency/accounts/${currency}/payout-destinations`,
+    url: `/api/v1/currency/accounts/${currency}/payout-destinations`,
     method: "get",
   });
 };
 
 export const createPayoutDestinationRequest = async (
-  currency: "USD" | "EUR" | "GBP",
+  currency: "USD" | "EUR" | "GBP" | "NGN",
   data: ICreatePayoutDestination
 ) => {
   return request({
-    url: `/currency/accounts/${currency}/payout-destinations`,
+    url: `/api/v1/currency/accounts/${currency}/payout-destinations`,
     method: "post",
     data,
   });
 };
 
 export const createPayoutRequest = async (
-  currency: "USD" | "EUR" | "GBP",
+  currency: "USD" | "EUR" | "GBP" | "NGN",
   data: ICreatePayout
 ) => {
   return request({
-    url: `/currency/accounts/${currency}/payouts`,
+    url: `/api/v1/currency/accounts/${currency}/payouts`,
     method: "post",
     data,
   });

@@ -7,7 +7,6 @@ import CustomButton from "@/components/shared/Button";
 import ErrorToast from "@/components/toast/ErrorToast";
 import SuccessToast from "@/components/toast/SuccessToast";
 import { ICurrencyAccount, IPayoutDestination } from "@/api/currency/currency.types";
-import PinInputWithFingerprint from "@/components/shared/PinInputWithFingerprint";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
 
 interface CreatePayoutModalProps {
@@ -27,9 +26,7 @@ const CreatePayoutModal: React.FC<CreatePayoutModalProps> = ({
 }) => {
   const [selectedDestination, setSelectedDestination] = React.useState<IPayoutDestination | null>(null);
   const [amount, setAmount] = React.useState("");
-  const [reference, setReference] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [walletPin, setWalletPin] = React.useState("");
   const [destinationOpen, setDestinationOpen] = React.useState(false);
   const destinationRef = React.useRef<HTMLDivElement>(null);
 
@@ -50,9 +47,7 @@ const CreatePayoutModal: React.FC<CreatePayoutModalProps> = ({
     if (isOpen) {
       setSelectedDestination(null);
       setAmount("");
-      setReference("");
       setDescription("");
-      setWalletPin("");
       setDestinationOpen(false);
     }
   }, [isOpen]);
@@ -60,9 +55,7 @@ const CreatePayoutModal: React.FC<CreatePayoutModalProps> = ({
   const handleClose = () => {
     setSelectedDestination(null);
     setAmount("");
-    setReference("");
     setDescription("");
-    setWalletPin("");
     setDestinationOpen(false);
     onClose();
   };
@@ -91,16 +84,14 @@ const CreatePayoutModal: React.FC<CreatePayoutModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedDestination || !amount || Number(amount) <= 0 || walletPin.length !== 4) return;
+    if (!selectedDestination || !amount || Number(amount) <= 0) return;
 
     createPayout({
       currency,
       formdata: {
-        destinationId: selectedDestination.id,
+        destination_id: selectedDestination.id,
         amount: Number(amount),
-        reference: reference.trim() || undefined,
         description: description.trim() || undefined,
-        walletPin,
       },
     });
   };
@@ -110,8 +101,7 @@ const CreatePayoutModal: React.FC<CreatePayoutModalProps> = ({
   const canSubmit =
     !!selectedDestination &&
     Number(amount) > 0 &&
-    Number(amount) <= (account.balance || 0) &&
-    walletPin.length === 4;
+    Number(amount) <= (account.balance || 0);
   const totalAmount = feeData ? Number(amount) + feeData.fee : Number(amount);
   const hasInsufficientBalance = Number(amount) > (account.balance || 0);
 
@@ -224,18 +214,6 @@ const CreatePayoutModal: React.FC<CreatePayoutModalProps> = ({
             </div>
           )}
 
-          {/* Reference (Optional) */}
-          <div>
-            <label className="block text-sm text-white/80 mb-1.5">Reference (Optional)</label>
-            <input
-              type="text"
-              value={reference}
-              onChange={(e) => setReference(e.target.value)}
-              placeholder="Enter reference"
-              className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-3.5 px-3 text-white placeholder:text-white/50 outline-none focus:border-primary"
-            />
-          </div>
-
           {/* Description (Optional) */}
           <div>
             <label className="block text-sm text-white/80 mb-1.5">Description (Optional)</label>
@@ -245,17 +223,6 @@ const CreatePayoutModal: React.FC<CreatePayoutModalProps> = ({
               placeholder="Enter description"
               rows={3}
               className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-3.5 px-3 text-white placeholder:text-white/50 outline-none focus:border-primary resize-none"
-            />
-          </div>
-
-          {/* PIN */}
-          <div>
-            <label className="block text-sm text-white/80 mb-1.5">Enter Wallet PIN</label>
-            <PinInputWithFingerprint
-              value={walletPin}
-              onChange={setWalletPin}
-              placeholder="••••"
-              disabled={isPending}
             />
           </div>
 

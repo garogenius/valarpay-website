@@ -394,9 +394,14 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
                         <span className="text-[10px] font-bold text-blue-400">{dest.type?.slice(0, 4).toUpperCase()}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-white text-sm font-medium truncate">{dest.account_name}</p>
+                        <p className="text-white text-sm font-medium truncate">
+                          {dest.beneficiary_name || dest.account_name || dest.accountName || dest.label || "N/A"}
+                        </p>
                         <p className="text-white/40 text-[10px] truncate mt-0.5">
-                          {dest.account_number} • {dest.bank_name || "N/A"}
+                          {dest.type === "stablecoin"
+                            ? `${dest.address_code?.slice(0, 10)}...${dest.address_code?.slice(-8)} • ${dest.address_network || dest.currency}`
+                            : `${dest.account_number || dest.accountNumber || "N/A"} • ${dest.bank_name || dest.bankName || "N/A"}`
+                          }
                         </p>
                       </div>
                     </div>

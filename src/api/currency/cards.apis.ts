@@ -12,8 +12,8 @@ import type {
 
 // Create virtual card
 export const createCardRequest = async (data: ICreateCardPayload) => {
-  // Backend rejects unknown fields like `label` (older UI used it)
-  const { label, ...safe } = data as any;
+  // Backend rejects unknown fields like `label`, `fundingAmount` (funding happens separately)
+  const { label, fundingAmount, ...safe } = data as any;
   return request({
     url: "/currency/cards",
     method: "post",

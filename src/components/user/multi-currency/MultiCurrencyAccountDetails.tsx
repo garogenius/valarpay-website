@@ -231,7 +231,7 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
                   <p className="text-white/60 text-sm font-medium">{currency} Account Details</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2">
                 <button
                   onClick={() => setOpenClose(true)}
                   disabled={account.balance > 0}
@@ -525,17 +525,35 @@ const CurrencyAccountsModal: React.FC<{ isOpen: boolean; onClose: () => void; ac
             </div>
           ) : (
             accounts.map((acc: any) => (
-              <div key={acc.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4 group hover:bg-white/10 transition-all cursor-pointer">
-                <div className="w-14 h-14 rounded-xl bg-[#FF6B2C]/20 flex items-center justify-center shrink-0">
-                  <span className="text-[#FF6B2C] font-extrabold text-lg">{acc.currency}</span>
+              <div key={acc.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4 group hover:bg-white/10 transition-all">
+                <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center shrink-0 overflow-hidden">
+                  <Image
+                    src={getCurrencyIconByString(acc.currency?.toLowerCase()) || ""}
+                    alt={acc.currency}
+                    width={56}
+                    height={56}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-bold text-lg truncate mb-0.5">{acc.accountName || acc.label || `${acc.currency} Account`}</p>
                   <p className="text-white/40 text-sm font-mono tracking-wider">{acc.accountNumber || (acc as any).account_number || "No Account Number"}</p>
                 </div>
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <FiCopy className="text-white/60 text-sm" />
-                </div>
+                <button
+                  onClick={() => {
+                    const accountNumber = acc.accountNumber || (acc as any).account_number;
+                    if (accountNumber) {
+                      navigator.clipboard.writeText(accountNumber);
+                      SuccessToast({
+                        title: "Copied",
+                        description: "Account number copied to clipboard",
+                      });
+                    }
+                  }}
+                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-[#FF6B2C]/20 flex items-center justify-center transition-all group-hover:opacity-100 opacity-60"
+                >
+                  <FiCopy className="text-white/80 group-hover:text-[#FF6B2C] text-base transition-colors" />
+                </button>
               </div>
             ))
           )}

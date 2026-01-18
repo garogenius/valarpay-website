@@ -309,7 +309,7 @@ const CardsContent: React.FC = () => {
     if (!cardholderNameInput.trim()) {
       ErrorToast({
         title: "Validation Error",
-        descriptions: ["Cardholder name is required"],
+        descriptions: ["Card label is required"],
       });
       return;
     }
@@ -349,21 +349,17 @@ const CardsContent: React.FC = () => {
 
     // Build payload with optional initialBalance
     const payload: any = {
-      walletId: account.id,
       currency: selectedCurrency,
-      cardholderName: cardholderNameInput.trim(),
+      label: cardholderNameInput.trim(),
       pin: cardPinInput.trim(),
+      fundingAmount: parsedFundingAmount || 0,
     };
-
-    if (parsedFundingAmount !== undefined && parsedFundingAmount > 0) {
-      payload.fundingAmount = parsedFundingAmount;
-    }
 
     // Log account details before creating card
     if (process.env.NODE_ENV === "development") {
       console.log("Creating card with account:", {
         currency: selectedCurrency,
-        cardholderName: cardholderNameInput.trim(),
+        label: cardholderNameInput.trim(),
         fundingAmount: parsedFundingAmount,
         account: account
           ? {
@@ -574,9 +570,9 @@ const CardsContent: React.FC = () => {
                   <div className="text-right">
                     <p className="text-white/60 text-xs">Status</p>
                     <p className={`text-xs font-medium capitalize ${card.status === "ACTIVE" ? "text-green-400" :
-                        card.status === "FROZEN" ? "text-yellow-400" :
-                          card.status === "BLOCKED" ? "text-red-400" :
-                            "text-gray-400"
+                      card.status === "FROZEN" ? "text-yellow-400" :
+                        card.status === "BLOCKED" ? "text-red-400" :
+                          "text-gray-400"
                       }`}>
                       {card.status.toLowerCase()}
                     </p>
@@ -888,10 +884,10 @@ const CardsContent: React.FC = () => {
                 </p>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-white/70 text-xs">Cardholder Name</label>
+                <label className="text-white/70 text-xs">Card Label</label>
                 <input
                   className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-3 px-3 text-white text-sm placeholder:text-white/50 outline-none focus:border-[#f76301]"
-                  placeholder="e.g., John Doe"
+                  placeholder="e.g., My Shopping Card"
                   value={cardholderNameInput}
                   onChange={(e) => setCardholderNameInput(e.target.value)}
                 />

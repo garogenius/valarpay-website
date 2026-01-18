@@ -214,7 +214,7 @@ const MultiCurrencyAccountDetails: React.FC<MultiCurrencyAccountDetailsProps> = 
           </div>
         ) : account ? (
           <>
-            <div className="flex flex-col gap-6 mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 relative flex-shrink-0">
                   <Image

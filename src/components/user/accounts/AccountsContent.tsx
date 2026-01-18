@@ -285,9 +285,9 @@ const AccountsContent: React.FC = () => {
 
     const cardholderName = (cardLabel.trim() || user?.fullname || "CARD HOLDER").toUpperCase();
     createCard({
-      walletId: currencyAccount.id,
       currency: selectedCurrency as "USD" | "NGN",
-      cardholderName,
+      label: cardholderName,
+      fundingAmount: 0,
       pin: cardPinInput.trim(),
     });
   };
@@ -662,9 +662,9 @@ const AccountsContent: React.FC = () => {
                             <div className="text-right">
                               <p className="text-white/60 text-xs">Status</p>
                               <p className={`text-xs font-medium capitalize ${card.status === "ACTIVE" ? "text-green-400" :
-                                  card.status === "FROZEN" ? "text-yellow-400" :
-                                    card.status === "BLOCKED" ? "text-red-400" :
-                                      "text-gray-400"
+                                card.status === "FROZEN" ? "text-yellow-400" :
+                                  card.status === "BLOCKED" ? "text-red-400" :
+                                    "text-gray-400"
                                 }`}>
                                 {card.status.toLowerCase()}
                               </p>
@@ -740,10 +740,10 @@ const AccountsContent: React.FC = () => {
               <div className="flex items-center justify-between">
                 <p className="text-white font-semibold">Tier 1</p>
                 <span className={`text-xs px-2 py-1 rounded-full border ${tier1Active
-                    ? "border-[#FF6B2C] bg-[#FF6B2C]/20 text-[#FF6B2C] font-semibold"
-                    : tier1Completed
-                      ? "border-green-500/20 bg-green-500/10 text-green-400"
-                      : "border-gray-500/20 bg-gray-500/10 text-gray-400"
+                  ? "border-[#FF6B2C] bg-[#FF6B2C]/20 text-[#FF6B2C] font-semibold"
+                  : tier1Completed
+                    ? "border-green-500/20 bg-green-500/10 text-green-400"
+                    : "border-gray-500/20 bg-gray-500/10 text-gray-400"
                   }`}>
                   {tier1Active ? "Active" : tier1Completed ? "Completed" : "Not Started"}
                 </span>
@@ -780,12 +780,12 @@ const AccountsContent: React.FC = () => {
               <div className="flex items-center justify-between">
                 <p className="text-white font-semibold">Tier 2</p>
                 <span className={`text-xs px-2 py-1 rounded-full border ${tier2Active
-                    ? "border-[#FF6B2C] bg-[#FF6B2C]/20 text-[#FF6B2C] font-semibold"
-                    : tier2Completed
-                      ? "border-green-500/20 bg-green-500/10 text-green-400"
-                      : tier2CanUpgrade
-                        ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
-                        : "border-gray-500/20 bg-gray-500/10 text-gray-400"
+                  ? "border-[#FF6B2C] bg-[#FF6B2C]/20 text-[#FF6B2C] font-semibold"
+                  : tier2Completed
+                    ? "border-green-500/20 bg-green-500/10 text-green-400"
+                    : tier2CanUpgrade
+                      ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
+                      : "border-gray-500/20 bg-gray-500/10 text-gray-400"
                   }`}>
                   {tier2Active ? "Active" : tier2Completed ? "Completed" : tier2CanUpgrade ? "Available" : "Locked"}
                 </span>
@@ -820,10 +820,10 @@ const AccountsContent: React.FC = () => {
               <div className="flex items-center justify-between">
                 <p className="text-white font-semibold">Tier 3</p>
                 <span className={`text-xs px-2 py-1 rounded-full border ${tier3Active
-                    ? "border-[#FF6B2C] bg-[#FF6B2C]/20 text-[#FF6B2C] font-semibold"
-                    : tier3CanUpgrade
-                      ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
-                      : "border-gray-500/20 bg-gray-500/10 text-gray-400"
+                  ? "border-[#FF6B2C] bg-[#FF6B2C]/20 text-[#FF6B2C] font-semibold"
+                  : tier3CanUpgrade
+                    ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
+                    : "border-gray-500/20 bg-gray-500/10 text-gray-400"
                   }`}>
                   {tier3Active ? "Active" : tier3CanUpgrade ? "Available" : "Locked"}
                 </span>

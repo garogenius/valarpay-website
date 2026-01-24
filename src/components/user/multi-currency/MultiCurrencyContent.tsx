@@ -8,12 +8,18 @@ import { getCurrencyIconByString } from "@/utils/utilityFunctions";
 import Image from "next/image";
 import MultiCurrencyAccountDetails from "./MultiCurrencyAccountDetails";
 import CreateCurrencyAccountModal from "@/components/modals/CreateCurrencyAccountModal";
+import CreatePayoutModal from "@/components/modals/currency/CreatePayoutModal";
+import BillsHubModal from "@/components/modals/bills/BillsHubModal";
+import { useGetCurrencyAccountPayoutDestinations } from "@/api/currency/currency.queries";
 import images from "../../../../public/images";
 
 const MultiCurrencyContent: React.FC = () => {
   const [selectedCurrency, setSelectedCurrency] = React.useState<"USD" | "EUR" | "GBP" | null>(null);
   const [openCreate, setOpenCreate] = React.useState(false);
   const [balanceVisible, setBalanceVisible] = React.useState<Record<string, boolean>>({});
+  const [openPayout, setOpenPayout] = React.useState(false);
+  const [openConversion, setOpenConversion] = React.useState(false);
+  const [selectedAccount, setSelectedAccount] = React.useState<any>(null);
 
   const { accounts, isPending, refetch } = useGetCurrencyAccounts();
 
@@ -21,6 +27,8 @@ const MultiCurrencyContent: React.FC = () => {
   const currencyAccounts = accountsList.filter((acc: any) =>
     acc?.currency && ["USD", "EUR", "GBP"].includes(String(acc.currency).toUpperCase())
   );
+
+  const { destinations } = useGetCurrencyAccountPayoutDestinations(selectedCurrency || "USD");
 
   React.useEffect(() => {
     if (currencyAccounts.length > 0 && !selectedCurrency) {
@@ -149,7 +157,14 @@ const MultiCurrencyContent: React.FC = () => {
                             {isVisible ? <FiEyeOff className="text-xl" /> : <FiEye className="text-xl" />}
                           </button>
                         </div>
-                        <button className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isActive ? "bg-black text-white hover:bg-black/80" : "bg-primary text-black"}`}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAccount(account);
+                            setOpenPayout(true);
+                          }}
+                          className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isActive ? "bg-black text-white hover:bg-black/80" : "bg-primary text-black"}`}
+                        >
                           <FiPlus className="text-2xl" />
                         </button>
                       </div>
@@ -168,7 +183,13 @@ const MultiCurrencyContent: React.FC = () => {
                             <span>0.34% today</span>
                           </div>
                         </div>
-                        <button className={`px-6 py-2.5 rounded-full text-sm font-bold uppercase transition-transform hover:scale-105 ${isActive ? "bg-black text-white" : "bg-white/10 text-white"}`}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenConversion(true);
+                          }}
+                          className={`px-6 py-2.5 rounded-full text-sm font-bold uppercase transition-transform hover:scale-105 ${isActive ? "bg-black text-white" : "bg-white/10 text-white"}`}
+                        >
                           {currency} Conversion
                         </button>
                       </div>
@@ -335,6 +356,30 @@ const MultiCurrencyContent: React.FC = () => {
         isOpen={openCreate}
         onClose={() => setOpenCreate(false)}
         onSuccess={handleCreateSuccess}
+      />
+
+      {/* Payout Modal */}
+      {selectedAccount && (
+        <CreatePayoutModal
+          isOpen={openPayout}
+          onClose={() => {
+            setOpenPayout(false);
+            setSelectedAccount(null);
+          }}
+          account={selectedAccount}
+          destinations={destinations || []}
+          onSuccess={() => {
+            setOpenPayout(false);
+            refetch();
+          }}
+        />
+      )}
+
+      {/* Conversion Modal */}
+      <BillsHubModal
+        isOpen={openConversion}
+        onClose={() => setOpenConversion(false)}
+        initialBill="convert"
       />
     </div>
   );

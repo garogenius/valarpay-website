@@ -146,6 +146,8 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
                 onPaste: handleNumericPaste,
               }
               : {})}
+            value={value}
+            onChange={onChange}
             {...props}
           />
           {type === "password" && (

@@ -250,11 +250,11 @@ const AccountsContent: React.FC = () => {
   );
 
   const handleCreateCard = () => {
-    // Only USD and NGN are available for virtual cards (EUR and GBP coming soon)
-    if (selectedCurrency !== "USD" && selectedCurrency !== "NGN") {
+    // Only USD is available for virtual cards
+    if (selectedCurrency !== "USD") {
       ErrorToast({
         title: "Card Not Available",
-        descriptions: [`${selectedCurrency} virtual cards are not available yet. Only USD and NGN virtual cards are currently available.`],
+        descriptions: [`${selectedCurrency} virtual cards are not available yet. Only USD virtual cards are currently available.`],
       });
       return;
     }
@@ -550,15 +550,14 @@ const AccountsContent: React.FC = () => {
                 )}
               </div>
 
-              {/* Virtual Cards - For USD and NGN currencies */}
-              {(selectedCurrency === "USD" || selectedCurrency === "NGN") && (
+              {/* Virtual Cards - For USD currency */}
+              {selectedCurrency === "USD" && (
                 <div className="mt-5">
                   <h4 className="text-white font-medium mb-3">Virtual Cards</h4>
                   <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
                     <p className="text-blue-400 text-xs font-medium mb-1">Note</p>
-                    <p className="text-white/80 text-xs">• Virtual cards are currently available for USD and NGN only</p>
-                    <p className="text-white/80 text-xs">• EUR and GBP virtual cards coming soon</p>
-                    <p className="text-white/80 text-xs">• You must have a {selectedCurrency} account before creating a virtual card</p>
+                    <p className="text-white/80 text-xs">• Virtual cards are currently available for USD only</p>
+                    <p className="text-white/80 text-xs">• You must have a USD account before creating a virtual card</p>
                   </div>
                   {cardsLoading ? (
                     <div className="flex items-center justify-center py-8">
@@ -687,14 +686,14 @@ const AccountsContent: React.FC = () => {
                 </div>
               )}
 
-              {/* Virtual Cards - For EUR and GBP (Not Available Yet) */}
-              {(selectedCurrency === "EUR" || selectedCurrency === "GBP") && (
+              {/* Virtual Cards - For other currencies (Not Available Yet) */}
+              {selectedCurrency !== "USD" && (
                 <div className="mt-5">
                   <h4 className="text-white font-medium mb-3">Virtual Cards</h4>
                   <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mb-4">
                     <p className="text-yellow-400 text-sm font-medium mb-2">{selectedCurrency} Cards Coming Soon</p>
                     <p className="text-white/80 text-xs mb-1">• {selectedCurrency} virtual cards are not available yet</p>
-                    <p className="text-white/80 text-xs mb-1">• Currently, only USD and NGN virtual cards are available</p>
+                    <p className="text-white/80 text-xs mb-1">• Currently, only USD virtual cards are available</p>
                     <p className="text-white/80 text-xs">• {selectedCurrency} virtual cards will be available soon</p>
                   </div>
                 </div>

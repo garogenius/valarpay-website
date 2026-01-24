@@ -102,7 +102,7 @@ const BvnFaceCaptureModal: React.FC<BvnFaceCaptureModalProps> = ({
           video.addEventListener("loadedmetadata", handleLoadedMetadata, { once: true });
           video.addEventListener("canplay", handleCanPlay, { once: true });
           video.addEventListener("error", handleError, { once: true });
-          
+
           // Fallback: if metadata already loaded
           if (video.readyState >= video.HAVE_METADATA) {
             console.log("Video already has metadata");
@@ -130,7 +130,7 @@ const BvnFaceCaptureModal: React.FC<BvnFaceCaptureModalProps> = ({
       setCameraError("");
       setPreviewUrl("");
       setCapturedImage("");
-      
+
       // Request camera permission first
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -139,9 +139,9 @@ const BvnFaceCaptureModal: React.FC<BvnFaceCaptureModalProps> = ({
           height: { ideal: 720 },
         },
       });
-      
+
       console.log("Camera permission granted, stream:", stream);
-      
+
       // Set showCamera to true first, then useEffect will handle assigning stream to video
       setPendingStream(stream);
       setShowCamera(true);
@@ -152,10 +152,13 @@ const BvnFaceCaptureModal: React.FC<BvnFaceCaptureModalProps> = ({
       setIsCameraReady(false);
       setPendingStream(null);
       if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-        setCameraError("Camera permission denied. Please enable camera access in your browser settings.");
+        setCameraError("Camera permission denied. Please enable camera access in your browser settings. Look for the camera icon in your address bar or check site settings.");
         ErrorToast({
           title: "Camera Permission Denied",
-          descriptions: ["Please enable camera access in your browser settings and try again."],
+          descriptions: [
+            "Please enable camera access in your browser settings.",
+            "Try clicking the lock/settings icon in your browser's address bar to allow camera access.",
+          ],
         });
       } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
         setCameraError("No camera found on your device.");
@@ -174,7 +177,7 @@ const BvnFaceCaptureModal: React.FC<BvnFaceCaptureModalProps> = ({
   };
 
   // Compress and resize image to reduce payload size
-  const compressImage = (imageDataUrl: string, maxWidth: number = 800, maxHeight: number = 600, quality: number = 0.7): Promise<string> => {
+  const compressImage = (imageDataUrl: string, maxWidth: number = 1280, maxHeight: number = 720, quality: number = 0.8): Promise<string> => {
     return new Promise((resolve, reject) => {
       const img = document.createElement("img");
       img.onload = () => {
@@ -233,13 +236,13 @@ const BvnFaceCaptureModal: React.FC<BvnFaceCaptureModalProps> = ({
           ctx.translate(canvas.width, 0);
           ctx.scale(-1, 1);
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          
+
           // Get initial base64 image
           const initialImage = canvas.toDataURL("image/jpeg", 0.9);
-          
+
           // Compress the image
-          const compressedImage = await compressImage(initialImage, 800, 600, 0.7);
-          
+          const compressedImage = await compressImage(initialImage, 1280, 720, 0.8);
+
           setPreviewUrl(compressedImage);
           setCapturedImage(compressedImage);
           stopCamera();
@@ -290,7 +293,7 @@ const BvnFaceCaptureModal: React.FC<BvnFaceCaptureModalProps> = ({
         try {
           const result = reader.result as string;
           // Compress the uploaded image
-          const compressedImage = await compressImage(result, 800, 600, 0.7);
+          const compressedImage = await compressImage(result, 1280, 720, 0.8);
           setPreviewUrl(compressedImage);
           setCapturedImage(compressedImage);
         } catch (error) {
@@ -361,45 +364,45 @@ const BvnFaceCaptureModal: React.FC<BvnFaceCaptureModalProps> = ({
                   playsInline
                   muted
                   className="absolute inset-0 w-full h-full object-cover"
-                  style={{ 
+                  style={{
                     transform: "scaleX(-1)",
                     zIndex: 1,
                     backgroundColor: "#000"
                   }}
                 />
-              {isCameraReady && (
-                <div className="absolute bottom-2 sm:bottom-4 left-0 right-0 flex justify-center gap-2 sm:gap-4 px-2 sm:px-4 z-20">
-                  <CustomButton
-                    type="button"
-                    onClick={capturePhoto}
-                    className="bg-[#FF6B2C] hover:bg-[#FF7A3D] text-white font-medium py-2 sm:py-2.5 px-3 sm:px-6 rounded-lg flex items-center gap-1.5 sm:gap-2 shadow-lg text-sm sm:text-base"
-                  >
-                    <FiCamera className="text-base sm:text-lg" />
-                    <span className="hidden xs:inline">Capture Photo</span>
-                    <span className="xs:hidden">Capture</span>
-                  </CustomButton>
-                  <CustomButton
-                    type="button"
-                    onClick={stopCamera}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 sm:py-2.5 px-3 sm:px-6 rounded-lg flex items-center gap-1.5 sm:gap-2 shadow-lg text-sm sm:text-base"
-                  >
-                    <FiX className="text-base sm:text-lg" />
-                    Cancel
-                  </CustomButton>
-                </div>
-              )}
-              {!isCameraReady && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 z-10">
-                  <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                    <p className="text-white">Initializing camera...</p>
+                {isCameraReady && (
+                  <div className="absolute bottom-2 sm:bottom-4 left-0 right-0 flex justify-center gap-2 sm:gap-4 px-2 sm:px-4 z-20">
+                    <CustomButton
+                      type="button"
+                      onClick={capturePhoto}
+                      className="bg-[#FF6B2C] hover:bg-[#FF7A3D] text-white font-medium py-2 sm:py-2.5 px-3 sm:px-6 rounded-lg flex items-center gap-1.5 sm:gap-2 shadow-lg text-sm sm:text-base"
+                    >
+                      <FiCamera className="text-base sm:text-lg" />
+                      <span className="hidden xs:inline">Capture Photo</span>
+                      <span className="xs:hidden">Capture</span>
+                    </CustomButton>
+                    <CustomButton
+                      type="button"
+                      onClick={stopCamera}
+                      className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 sm:py-2.5 px-3 sm:px-6 rounded-lg flex items-center gap-1.5 sm:gap-2 shadow-lg text-sm sm:text-base"
+                    >
+                      <FiX className="text-base sm:text-lg" />
+                      Cancel
+                    </CustomButton>
                   </div>
-                </div>
-              )}
+                )}
+                {!isCameraReady && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 z-10">
+                    <div className="text-center">
+                      <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                      <p className="text-white">Initializing camera...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           ) : null}
-          
+
           {!showCamera && previewUrl ? (
             <div className="space-y-3 sm:space-y-4">
               <div className="relative w-full">
@@ -461,8 +464,11 @@ const BvnFaceCaptureModal: React.FC<BvnFaceCaptureModalProps> = ({
           )}
 
           {cameraError && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-600 text-sm">{cameraError}</p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-red-600 text-xs sm:text-sm font-medium">{cameraError}</p>
+              <p className="text-red-500 text-[10px] sm:text-xs mt-1">
+                If you denied access, you may need to refresh the page or manually enable it in browser settings.
+              </p>
             </div>
           )}
 

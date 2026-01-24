@@ -8,7 +8,7 @@ import {
 
 export const getCablePlansRequest = async (formdata: IGetCablePlans) => {
   return request({
-    url: `/bill/cable/get-plan?currency=${formdata.currency}`,
+    url: `/bill/get-plans/CABLE`,
     method: "get",
   });
 };

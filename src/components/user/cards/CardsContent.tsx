@@ -92,9 +92,6 @@ const CardsContent: React.FC = () => {
 
   const supportedCardCurrencies: CardCurrency[] = [
     "USD",
-    "EUR",
-    "GBP",
-    "NGN",
   ];
 
   const virtualCards = safeCards.filter((card: IVirtualCard) =>
@@ -440,7 +437,7 @@ const CardsContent: React.FC = () => {
             Important Notice
           </p>
           <p className="text-white/80 text-xs sm:text-sm">
-            • Virtual cards are currently available for USD, EUR, GBP, and NGN
+            • Virtual cards are currently available for USD only
           </p>
           <p className="text-white/80 text-xs sm:text-sm">
             • You must have the matching wallet/account before creating a virtual card

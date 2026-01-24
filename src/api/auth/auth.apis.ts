@@ -23,6 +23,10 @@ export const loginRequest = async (formdata: ILogin) => {
   return request({ url: "/auth/login", method: "post", data: formdata });
 };
 
+export const passcodeLoginRequest = async (formdata: any) => {
+  return request({ url: "/auth/passcode-login", method: "post", data: formdata });
+};
+
 export const verifyEmailRequest = async (formdata: IVerifyEmail) => {
   return request({ url: "/user/verify-email", method: "post", data: formdata });
 };
@@ -61,12 +65,12 @@ export const resend2faCodeRequest = async (
     url: "/auth/resend-2fa",
     method: "post",
   };
-  
+
   // Only include data if formdata is provided and not empty
   if (formdata && Object.keys(formdata).length > 0) {
     requestConfig.data = formdata;
   }
-  
+
   return request(requestConfig);
 };
 

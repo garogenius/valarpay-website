@@ -32,7 +32,8 @@ export interface IVerify2fa {
 }
 
 export interface IResendVerificationCode {
-  email: string;
+  email?: string;
+  username?: string;
 }
 
 export interface IForgotPassword {
@@ -43,4 +44,9 @@ export interface IResetPassword {
   email: string;
   otpCode: string;
   newPassword: string;
+}
+
+export interface IPasscodeLogin {
+  username: string;
+  passcode: string;
 }

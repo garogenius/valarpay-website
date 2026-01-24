@@ -109,8 +109,10 @@ const TwoFactorAuthContent = () => {
 
   const handleResendClick = async () => {
     if (resendTimer === 0) {
-      // API expects no body - email is retrieved from auth session
-      resend2faCode(undefined);
+      // API expects no body - email is retrieved from auth session, but passing as fallback
+      resend2faCode({
+        username: authUsername || authEmail
+      });
     }
   };
 

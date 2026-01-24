@@ -4,7 +4,7 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useLogin } from "@/api/auth/auth.queries";
+import { useLogin, usePasscodeLogin } from "@/api/auth/auth.queries";
 import { motion } from "framer-motion";
 import images from "../../../public/images";
 import AuthHeader from "./AuthHeader";
@@ -18,7 +18,7 @@ import useNavigate from "@/hooks/useNavigate";
 import icons from "../../../public/icons";
 import { useTheme } from "@/store/theme.store";
 import useAuthEmailStore from "@/store/authEmail.store";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { User } from "@/constants/types";
 import { ILogin } from "@/api/auth/auth.types";
 import Cookies from "js-cookie";
@@ -26,28 +26,26 @@ import * as BiometricService from "@/services/biometric.service";
 import { useBiometricChallenge, useBiometricLogin } from "@/api/biometric/biometric.queries";
 import useUserStore from "@/store/user.store";
 
-const schema = yup.object().shape({
-  username: yup
-    .string()
-    .required("Username is required"),
 
-  password: yup
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .required("Password is required"),
 
-  ipAddress: yup.string().optional(),
-  deviceName: yup.string().optional(),
-  operatingSystem: yup.string().optional(),
-});
 
 interface LoginFormData {
   username: string;
-  password: string;
+  password?: string;
   ipAddress?: string;
   deviceName?: string;
   operatingSystem?: string;
+  passcode?: string;
 }
+
+interface RememberedUser {
+  email: string;
+  username: string;
+  fullName: string;
+  avatarUrl?: string;
+}
+
+const REMEMBERED_USER_KEY = "valar_remembered_user";
 
 const LoginContent = () => {
   const navigate = useNavigate();
@@ -57,23 +55,60 @@ const LoginContent = () => {
 
   const [biometricType, setBiometricType] = useState<"fingerprint" | "faceid" | null>(null);
   const [deviceId] = useState(() => BiometricService.getDeviceId());
+  const [loginMethod, setLoginMethod] = useState<"password" | "passcode">("password");
+  const [rememberedUser, setRememberedUser] = useState<RememberedUser | null>(null);
+
+  const unifiedSchema = useMemo(() => yup.object().shape({
+    username: yup.string().required("Username is required"),
+    password: yup.string().when("$loginMethod", {
+      is: "password",
+      then: (sh) => sh.min(8, "Password must be at least 8 characters").required("Password is required"),
+      otherwise: (sh) => sh.optional(),
+    }),
+    passcode: yup.string().when("$loginMethod", {
+      is: "passcode",
+      then: (sh) => sh.required("Passcode is required").length(6, "Passcode must be exactly 6 digits"),
+      otherwise: (sh) => sh.optional(),
+    }),
+    ipAddress: yup.string().optional(),
+    deviceName: yup.string().optional(),
+    operatingSystem: yup.string().optional(),
+  }), [loginMethod]);
 
   const form = useForm<LoginFormData>({
     defaultValues: {
       username: "",
       password: "",
+      passcode: "",
       ipAddress: "",
       deviceName: "",
       operatingSystem: "",
     },
-    resolver: yupResolver(schema) as any,
+    resolver: yupResolver(unifiedSchema) as any,
+    context: { loginMethod },
     mode: "onChange",
   });
 
   const { register, handleSubmit, formState, reset, setValue } = form;
   const { errors, isValid } = formState;
 
+  // Debugging log for disabled button issue
+  console.log("Login Form State:", { isValid, errors, loginMethod, values: form.getValues() });
+
   useEffect(() => {
+    // Check for remembered user
+    const stored = localStorage.getItem(REMEMBERED_USER_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setRememberedUser(parsed);
+        // Pre-fill form with email as username as requested
+        setValue("username", parsed.email, { shouldValidate: true });
+      } catch (e) {
+        localStorage.removeItem(REMEMBERED_USER_KEY);
+      }
+    }
+
     // Get operating system
     const getOS = () => {
       const userAgent = window.navigator.userAgent;
@@ -118,13 +153,14 @@ const LoginContent = () => {
   }, [setValue]); // Run once when component mounts
 
   const onError = async (error: any) => {
+    const trimmedUsername = form.getValues("username").trim().toLowerCase();
     const errorMessage = error?.response?.data?.message;
     const descriptions = Array.isArray(errorMessage)
       ? errorMessage
       : [errorMessage];
 
     if (descriptions.includes("Email not verified")) {
-      setAuthEmail(form.getValues("username"));
+      setAuthEmail(trimmedUsername);
       navigate("/verify-email");
     } else {
       ErrorToast({
@@ -134,18 +170,67 @@ const LoginContent = () => {
     }
   };
 
-  const onSuccess = (data: any) => {
+  const onPasswordSuccess = (data: any) => {
     const user: User = data?.data?.user;
+    const trimmedUsername = form.getValues("username").trim().toLowerCase();
     setAuthEmail(user?.email);
-    setAuthUsername(form.getValues("username").toLowerCase());
+    setAuthUsername(trimmedUsername);
+    console.log("Password login payload:", {
+      username: trimmedUsername,
+      password: form.getValues("password"),
+      ipAddress: form.getValues("ipAddress"),
+      deviceName: form.getValues("deviceName"),
+      operatingSystem: form.getValues("operatingSystem"),
+    });
 
-    // After login, always go to 2FA verification
+    // After password login, always go to 2FA verification
     SuccessToast({
       title: "Login successful!",
       description:
         "Check your email for verification code to continue with your two-factor authentication.",
     });
     navigate("/two-factor-auth");
+
+    // Save user for next time
+    const userData: RememberedUser = {
+      email: user.email,
+      username: user.username,
+      fullName: user.fullname,
+      avatarUrl: user.profileImageUrl || undefined,
+    };
+    localStorage.setItem(REMEMBERED_USER_KEY, JSON.stringify(userData));
+
+    reset();
+  };
+
+  const onPasscodeSuccess = (data: any) => {
+    const user: User = data?.data?.user;
+    const token = data?.data?.accessToken;
+
+    if (token) {
+      Cookies.set("accessToken", token);
+    }
+
+    setAuthEmail(user?.email);
+    setAuthUsername(form.getValues("username").toLowerCase());
+    setUser(user);
+    setIsLoggedIn(true);
+
+    SuccessToast({
+      title: "Login successful!",
+      description: "Welcome back!",
+    });
+
+    navigate("/user/dashboard");
+
+    // Save user for next time
+    const userData: RememberedUser = {
+      email: user.email,
+      username: user.username,
+      fullName: user.fullname,
+      avatarUrl: user.profileImageUrl || undefined,
+    };
+    localStorage.setItem(REMEMBERED_USER_KEY, JSON.stringify(userData));
 
     reset();
   };
@@ -154,9 +239,19 @@ const LoginContent = () => {
     mutate: login,
     isPending: loginPending,
     isError: loginError,
-  } = useLogin(onError, onSuccess);
+  } = useLogin(onError, onPasswordSuccess);
 
   const loginLoading = loginPending && !loginError;
+
+  const {
+    mutate: passcodeLogin,
+    isPending: passcodeLoginPending,
+    isError: passcodeLoginError,
+  } = usePasscodeLogin(onError, onPasscodeSuccess);
+
+  const passcodeLoginLoading = passcodeLoginPending && !passcodeLoginError;
+  const isLoading = loginLoading || passcodeLoginLoading;
+
 
   // COMMENTED OUT: Biometric login feature temporarily disabled
   // Biometric login
@@ -199,15 +294,46 @@ const LoginContent = () => {
   //   }
   // );
 
+  const handleSwitchAccount = () => {
+    setRememberedUser(null);
+    localStorage.removeItem(REMEMBERED_USER_KEY);
+    reset({ ...form.getValues(), username: "", password: "", passcode: "" });
+  };
+
+  const maskEmail = (email: string) => {
+    if (!email) return "";
+    const [name, domain] = email.split("@");
+    if (!name || !domain) return email;
+    const visible = name.slice(0, 4);
+    return `${visible}*******@${domain}`;
+  };
+
   const onSubmit = async (data: LoginFormData) => {
-    console.log('data:',data)
-    login({
-      username: data.username.toLowerCase(),
-      password: data.password,
-      ipAddress: data.ipAddress || "",
-      deviceName: data.deviceName || "",
-      operatingSystem: data.operatingSystem || "",
-    } as ILogin);
+    // Ensure we use email from remembered user if available
+    const finalUsername = rememberedUser?.email || data.username;
+    const trimmedUsername = finalUsername.trim().toLowerCase();
+
+    if (loginMethod === "password") {
+      const payload = {
+        username: trimmedUsername,
+        password: data.password || "",
+        ipAddress: data.ipAddress || "",
+        deviceName: data.deviceName || "",
+        operatingSystem: data.operatingSystem || "",
+      };
+      console.log("🚀 Submitting password login payload:", payload);
+      login(payload as ILogin);
+    } else {
+      const payload = {
+        username: trimmedUsername,
+        passcode: data.passcode,
+        ipAddress: data.ipAddress || "",
+        deviceName: data.deviceName || "",
+        operatingSystem: data.operatingSystem || "",
+      };
+      console.log("🚀 Submitting passcode login payload:", payload);
+      passcodeLogin(payload);
+    }
   };
 
   return (
@@ -287,60 +413,136 @@ const LoginContent = () => {
             className="z-10 flex flex-col justify-center items-center w-full max-w-md bg-dark-primary dark:bg-bg-1100 dark:xs:border dark:border-border-600 rounded-2xl p-6 sm:p-8 gap-6"
           >
             <form
+              key={loginMethod}
               className="flex flex-col justify-start items-start w-full gap-7"
               onSubmit={handleSubmit(onSubmit)}
               noValidate
             >
-              <AuthInput
-                id="username"
-                label="Email or Phone Number"
-                type="text"
-                htmlFor="username"
-                placeholder="Username"
-                icon={
-                  <Image
-                    src={
-                      theme === "dark"
-                        ? icons.authIcons.mailDark
-                        : icons.authIcons.mail
-                    }
-                    alt="username"
-                    className="w-5 h-5 sm:w-6 sm:h-6"
-                  />
-                }
-                error={errors.username?.message}
-                {...register("username")}
-              />
+              {!rememberedUser ? (
+                <AuthInput
+                  id="username"
+                  label="Email or Phone Number"
+                  type="text"
+                  htmlFor="username"
+                  placeholder="Username"
+                  icon={
+                    <Image
+                      src={
+                        theme === "dark"
+                          ? icons.authIcons.mailDark
+                          : icons.authIcons.mail
+                      }
+                      alt="username"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
+                    />
+                  }
+                  error={errors.username?.message}
+                  {...register("username")}
+                />
+              ) : (
+                <div key="quick-login" className="w-full flex flex-col items-center gap-4 mb-2">
+                  <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gray-200 dark:bg-white/10 flex items-center justify-center border-2 border-primary/20">
+                    {rememberedUser.avatarUrl ? (
+                      <Image src={rememberedUser.avatarUrl} alt="profile" fill className="object-cover" />
+                    ) : (
+                      <span className="text-2xl font-bold text-gray-500 dark:text-gray-400 uppercase">
+                        {(rememberedUser.fullName || rememberedUser.username || "U").slice(0, 2)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Continue with</p>
+                    <p className="font-medium text-black dark:text-white mt-0.5">
+                      {maskEmail(rememberedUser.email)}
+                    </p>
+                  </div>
+                  <input type="hidden" {...register("username")} />
+                </div>
+              )}
 
-              <AuthInput
-                id="password"
-                label="Password"
-                type="password"
-                htmlFor="password"
-                placeholder="Password"
-                autoComplete="off"
-                forgotPassword={true}
-                icon={
-                  <Image
-                    src={
-                      theme === "dark"
-                        ? icons.authIcons.lockDark
-                        : icons.authIcons.lock
+              {loginMethod === "password" ? (
+                <AuthInput
+                  id="password"
+                  label="Password"
+                  type="password"
+                  htmlFor="password"
+                  placeholder="Password"
+                  autoComplete="off"
+                  forgotPassword={true}
+                  icon={
+                    <Image
+                      src={
+                        theme === "dark"
+                          ? icons.authIcons.lockDark
+                          : icons.authIcons.lock
+                      }
+                      alt="password"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
+                    />
+                  }
+                  error={errors.password?.message}
+                  {...register("password")}
+                />
+              ) : (
+                <AuthInput
+                  id="passcode"
+                  label="Passcode"
+                  type="password"
+                  htmlFor="passcode"
+                  placeholder="Enter 6-digit passcode"
+                  maxLength={6}
+                  icon={
+                    <Image
+                      src={theme === "dark" ? icons.authIcons.lockDark : icons.authIcons.lock}
+                      alt="passcode"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
+                    />
+                  }
+                  error={errors.passcode?.message}
+                  {...register("passcode", {
+                    onChange: (e: any) => {
+                      // Only allow numeric input
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                      setValue("passcode", val, { shouldValidate: true });
                     }
-                    alt="password"
-                    className="w-5 h-5 sm:w-6 sm:h-6"
-                  />
-                }
-                error={errors.password?.message}
-                {...register("password")}
-              />
+                  })}
+                />
+              )}
+
+              <div className="w-full flex justify-end">
+                <button
+                  type="button"
+                  className="text-sm text-primary hover:underline font-medium transition-colors"
+                  onClick={() => {
+                    const newMethod = loginMethod === "password" ? "passcode" : "password";
+                    setLoginMethod(newMethod);
+                    reset({ ...form.getValues(), password: "", passcode: "" }); // Keep username, clear credentials
+                    setTimeout(() => form.trigger(), 0); // Re-validate with new context
+                  }}
+                >
+                  {loginMethod === "password" ? "Login with Passcode" : "Login with Password"}
+                </button>
+              </div>
+
+              {rememberedUser && (
+                <div className="w-full flex justify-center -mt-2">
+                  <button
+                    type="button"
+                    onClick={handleSwitchAccount}
+                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors flex items-center gap-2"
+                  >
+                    Login with another account
+                  </button>
+                </div>
+              )}
+
 
               {/* Moved CTA to top-right header */}
 
               <CustomButton
                 type="submit"
-                disabled={isValid || loginLoading}
-                isLoading={loginLoading}
+                disabled={!isValid || isLoading}
+                isLoading={isLoading}
                 className="mb-4  w-full  border-2 border-primary text-black text-base 2xs:text-lg max-2xs:px-6 py-3.5 xs:py-4"
               >
                 Sign In{" "}

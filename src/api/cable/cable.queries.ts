@@ -18,7 +18,7 @@ export const useGetCablePlans = (payload: IGetCablePlans) => {
     enabled: payload.isEnabled,
   });
 
-  const cablePlans: CablePlan[] = data?.data?.data;
+  const cablePlans: CablePlan[] = data?.data?.data ?? data?.data ?? [];
 
   return { isPending, isError, cablePlans };
 };
@@ -30,7 +30,7 @@ export const useGetCableVariations = (payload: IGetCableVariationsPayload) => {
     enabled: !!payload.billerCode,
   });
 
-  const variations: CableVariationProps[] = data?.data?.data;
+  const variations: CableVariationProps[] = data?.data?.data ?? data?.data ?? [];
   return { isLoading, isError, variations };
 };
 

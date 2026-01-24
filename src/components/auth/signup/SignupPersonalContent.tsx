@@ -85,7 +85,7 @@ const CurrencyOptions = [
 const SignupPersonalContent = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { setAuthEmail } = useAuthEmailStore();
+  const { setAuthEmail, setAuthUsername } = useAuthEmailStore();
   const [currencyState, setCurrencyState] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
@@ -156,6 +156,7 @@ const SignupPersonalContent = () => {
     // API response structure: { message, statusCode, user, accessToken }
     const user = data?.data?.user || data?.user;
     setAuthEmail(user?.email);
+    setAuthUsername(user?.username);
 
     SuccessToast({
       title: "Registration successful!",
@@ -178,7 +179,7 @@ const SignupPersonalContent = () => {
   const onSubmit = async (data: RegisterFormData) => {
     // Remove confirmPassword from the request body
     const { confirmPassword, countryCode, ...requestData } = data;
-    
+
     // Ensure dateOfBirth is in the correct format DD-MM-YYYY and trim any whitespace
     if (requestData.dateOfBirth) {
       requestData.dateOfBirth = String(requestData.dateOfBirth).trim();
@@ -195,19 +196,19 @@ const SignupPersonalContent = () => {
         }
       }
     }
-    
+
     // Ensure phoneNumber is a string and contains only digits
     if (requestData.phoneNumber) {
       requestData.phoneNumber = String(requestData.phoneNumber).trim().replace(/\D/g, '');
     }
-    
+
     // Map countryCode to currency and add accountType for API
     const apiPayload = {
       ...requestData,
       currency: countryCode, // Map countryCode to currency
       accountType: "PERSONAL", // Add accountType for personal registration
     };
-    
+
     signup(apiPayload);
   };
 
@@ -215,7 +216,7 @@ const SignupPersonalContent = () => {
   useOnClickOutside(dropdownRef, () => {
     setCurrencyState(false);
   });
-  
+
   // Validate required fields for the current step before moving forward
   const stepFields: (keyof RegisterFormData)[][] = [
     ["fullname", "username", "countryCode"],

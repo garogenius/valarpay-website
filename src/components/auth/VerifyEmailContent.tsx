@@ -24,7 +24,7 @@ const VerifyEmailContent = () => {
   const navigate = useNavigate();
   const router = useRouter();
 
-  const { authEmail } = useAuthEmailStore();
+  const { authEmail, authUsername } = useAuthEmailStore();
   const [token, setToken] = useState("");
 
   const isValid = token.length === 6;
@@ -97,7 +97,9 @@ const VerifyEmailContent = () => {
 
   const handleResendClick = async () => {
     if (resendTimer === 0) {
-      resendVerificationCode({ email: authEmail });
+      resendVerificationCode({
+        username: authUsername || authEmail
+      });
     }
   };
 
@@ -221,7 +223,7 @@ const VerifyEmailContent = () => {
           >
             <div className="text-white flex flex-col items-center justify-center w-full text-center gap-2 sm:gap-4">
 
-            {/* <Image
+              {/* <Image
               className="w-10 2xs:w-12 xs:w-16"
               src={images.logo}
               alt="logo"
@@ -229,70 +231,70 @@ const VerifyEmailContent = () => {
                 navigate("/");
               }}
             /> */}
-            <div className="w-full 2xs:w-[90%] xs:w-[80%] sm:w-[70%] md:w-[60%] flex flex-col justify-center items-center gap-0.5 sm:gap-2 text-text-700 dark:text-text-900">
-              {/* <h2 className="text-xl xs:text-2xl xl:text-3xl font-semibold">
+              <div className="w-full 2xs:w-[90%] xs:w-[80%] sm:w-[70%] md:w-[60%] flex flex-col justify-center items-center gap-0.5 sm:gap-2 text-text-700 dark:text-text-900">
+                {/* <h2 className="text-xl xs:text-2xl xl:text-3xl font-semibold">
                 Confirm Your Email Address{" "}
               </h2> */}
-              <p className="text-xs 2xs:text-sm xs:text-base dark:text-text-400">
- we just sent a verification code to{" "}
-                {authEmail}
-              </p>
+                <p className="text-xs 2xs:text-sm xs:text-base dark:text-text-400">
+                  we just sent a verification code to{" "}
+                  {authEmail}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col justify-center items-center w-full gap-4">
-            <div className="flex items-center justify-center  w-full ">
-              <OtpInput
-                value={token}
-                onChange={(props) => setToken(props)}
-                onPaste={handlePaste}
-                numInputs={6}
-                renderSeparator={<span className="w-2 2xs:w-3 xs:w-4"></span>}
-                containerStyle={{}}
-                skipDefaultStyles
-                inputType="number"
-                renderInput={(props) => (
-                  <input
-                    {...props}
-                    className="w-10 h-10 2xs:w-12 2xs:h-12 bg-transparent border-[1.03px] border-border-700  rounded-md text-base 2xs:text-lg text-text-700 dark:text-text-400 text-center font-medium outline-none"
-                  />
+            <div className="flex flex-col justify-center items-center w-full gap-4">
+              <div className="flex items-center justify-center  w-full ">
+                <OtpInput
+                  value={token}
+                  onChange={(props) => setToken(props)}
+                  onPaste={handlePaste}
+                  numInputs={6}
+                  renderSeparator={<span className="w-2 2xs:w-3 xs:w-4"></span>}
+                  containerStyle={{}}
+                  skipDefaultStyles
+                  inputType="number"
+                  renderInput={(props) => (
+                    <input
+                      {...props}
+                      className="w-10 h-10 2xs:w-12 2xs:h-12 bg-transparent border-[1.03px] border-border-700  rounded-md text-base 2xs:text-lg text-text-700 dark:text-text-400 text-center font-medium outline-none"
+                    />
+                  )}
+                />
+              </div>
+              <div className=" my-1 sm:my-2.5 text-center w-[90%] xs:w-[80%] text-sm 2xs:text-base text-text-1000  font-medium">
+                {resendTimer && resendTimer > 0 ? (
+                  <>
+                    Didn't get the code?{" "}
+                    <span className="text-secondary">Resend</span> in{" "}
+                    <span className="text-secondary">
+                      {formatTimer(resendTimer)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="flex items-center justify-center ">
+                    Didn't receive any code?
+                    <span
+                      className="cursor-pointer text-secondary ml-1"
+                      onClick={handleResendClick}
+                    >
+                      {resendLoadingStatus ? (
+                        <SpinnerLoader width={20} height={20} color="#D4B139" />
+                      ) : (
+                        "Resend"
+                      )}
+                    </span>
+                  </span>
                 )}
-              />
+              </div>
+              <CustomButton
+                type="button"
+                disabled={loadingStatus || !isValid}
+                isLoading={loadingStatus}
+                onClick={handleVerify}
+                className="w-full 2xs:w-[90%] sm:w-[80%] border-2 border-primary text-black text-base 2xs:text-lg max-2xs:px-6 py-3.5 xs:py-4 mt-2 2xs:mt-4 xs:mt-6 sm:mt-8 mb-2"
+              >
+                Next{" "}
+              </CustomButton>
             </div>
-            <div className=" my-1 sm:my-2.5 text-center w-[90%] xs:w-[80%] text-sm 2xs:text-base text-text-1000  font-medium">
-              {resendTimer && resendTimer > 0 ? (
-                <>
-                  Didn't get the code?{" "}
-                  <span className="text-secondary">Resend</span> in{" "}
-                  <span className="text-secondary">
-                    {formatTimer(resendTimer)}
-                  </span>
-                </>
-              ) : (
-                <span className="flex items-center justify-center ">
-                  Didn't receive any code?
-                  <span
-                    className="cursor-pointer text-secondary ml-1"
-                    onClick={handleResendClick}
-                  >
-                    {resendLoadingStatus ? (
-                      <SpinnerLoader width={20} height={20} color="#D4B139" />
-                    ) : (
-                      "Resend"
-                    )}
-                  </span>
-                </span>
-              )}
-            </div>
-            <CustomButton
-              type="button"
-              disabled={loadingStatus || !isValid}
-              isLoading={loadingStatus}
-              onClick={handleVerify}
-              className="w-full 2xs:w-[90%] sm:w-[80%] border-2 border-primary text-black text-base 2xs:text-lg max-2xs:px-6 py-3.5 xs:py-4 mt-2 2xs:mt-4 xs:mt-6 sm:mt-8 mb-2"
-            >
-              Next{" "}
-            </CustomButton>
-          </div>
           </motion.div>
         </div>
       </div>

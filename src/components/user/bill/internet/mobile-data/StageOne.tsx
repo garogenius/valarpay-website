@@ -1,7 +1,7 @@
 "use client";
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import Image from "next/image";
@@ -9,7 +9,7 @@ import images from "../../../../../../public/images";
 import Switch from "@mui/material/Switch";
 import { addBeneficiaryLabel, dataPlanNetwork } from "../../bill.data";
 import classNames from "classnames";
-import { useGetDataPlan, useGetDataVariation } from "@/api/data/data.queries";
+import { useGetDataPlan, useGetDataPlanByNetwork, useGetDataVariation } from "@/api/data/data.queries";
 import { useTheme } from "@/store/theme.store";
 import {
   getNetworkIconByString,
@@ -26,6 +26,7 @@ import {
   BENEFICIARY_TYPE,
   BeneficiaryProps,
   BILL_TYPE,
+  NetworkPlan,
 } from "@/constants/types";
 import { useGetBeneficiaries } from "@/api/user/user.queries";
 import Beneficiaries from "../../Beneficiaries";
@@ -46,13 +47,13 @@ type DataStageOneProps = {
 const DataStageOne: React.FC<DataStageOneProps> = ({
   currency,
   setStage,
-  setPhone = () => {},
+  setPhone = () => { },
   setAmount,
-  setNetwork = () => {},
+  setNetwork = () => { },
   setOperatorId,
   isBeneficiaryChecked = false,
-  setIsBeneficiaryChecked = () => {},
-  setCheckoutMessage = () => {},
+  setIsBeneficiaryChecked = () => { },
+  setCheckoutMessage = () => { },
 }) => {
   const theme = useTheme();
   const schema = yup.object().shape({
@@ -99,8 +100,8 @@ const DataStageOne: React.FC<DataStageOneProps> = ({
   const [networkState, setNetworkState] = useState(false);
 
   const {
-    networkPlans,
-    network,
+    networkPlans: initialPlans,
+    network: detectedNetwork,
     isLoading: isDataPlanPending,
     isError: isDataPlanError,
   } = useGetDataPlan({
@@ -108,7 +109,17 @@ const DataStageOne: React.FC<DataStageOneProps> = ({
     currency,
   });
 
-  const isDataPlanLoading = isDataPlanPending && !isDataPlanError;
+  const { data: plansFromNetwork, isLoading: plansByNetworkPending } = useGetDataPlanByNetwork(
+    detectedNetwork?.toUpperCase() || ""
+  );
+
+  const networkPlans = useMemo(() => {
+    if (initialPlans && initialPlans.length > 0) return initialPlans;
+    return plansFromNetwork?.data?.data || [];
+  }, [initialPlans, plansFromNetwork]);
+
+  const network = detectedNetwork;
+  const isDataPlanLoading = isDataPlanPending || (plansByNetworkPending && !!detectedNetwork);
   const [selectedNetworkPlan, setSelectedNetworkPlan] = useState<number>();
   const [selectedBeneficiary, setSelectedBeneficiary] = useState("");
 
@@ -127,7 +138,7 @@ const DataStageOne: React.FC<DataStageOneProps> = ({
   const dataVariationsLoading = dataVariationsPending && !dataVariationsError;
 
   useEffect(() => {
-    if (watchedPhone.length === 11 && network) {
+    if (watchedPhone.length === 11 && network && networkPlans?.length > 0) {
       setValue("network", network);
       setNetwork(network.toLocaleUpperCase());
       setSelectedNetworkPlan(networkPlans[0].operatorId);
@@ -239,8 +250,8 @@ const DataStageOne: React.FC<DataStageOneProps> = ({
                     <>
                       {" "}
                       {!watchedNetwork ||
-                      !watchedPhone ||
-                      watchedPhone.length !== 11 ? (
+                        !watchedPhone ||
+                        watchedPhone.length !== 11 ? (
                         <p className="text-sm 2xs:text-base">
                           Enter phone number{" "}
                         </p>
@@ -339,7 +350,7 @@ const DataStageOne: React.FC<DataStageOneProps> = ({
 
               {/* tabs section */}
               <div className="flex items-start gap-6 overflow-x-auto">
-                {networkPlans.map((plan) => (
+                {networkPlans.map((plan: NetworkPlan) => (
                   <div
                     onClick={() => {
                       if (selectedNetworkPlan !== plan.operatorId) {

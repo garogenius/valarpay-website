@@ -29,7 +29,7 @@ type ForgotPasswordFormData = yup.InferType<typeof schema>;
 const ForgotPasswordContent = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { setAuthEmail } = useAuthEmailStore();
+  const { setAuthEmail, setAuthUsername } = useAuthEmailStore();
 
   const form = useForm<ForgotPasswordFormData>({
     defaultValues: {
@@ -55,7 +55,9 @@ const ForgotPasswordContent = () => {
   };
 
   const onSuccess = () => {
-    setAuthEmail(form.getValues("username"));
+    const identifier = form.getValues("username");
+    setAuthEmail(identifier);
+    setAuthUsername(identifier);
     SuccessToast({
       title: "Password reset otp sent!",
       description:

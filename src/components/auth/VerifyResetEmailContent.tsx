@@ -25,7 +25,7 @@ const VerifyResetEmailContent = () => {
   const navigate = useNavigate();
   const router = useRouter();
 
-  const { authEmail, setAuthEmail, setAuthCode } = useAuthEmailStore();
+  const { authEmail, setAuthEmail, setAuthCode, authUsername } = useAuthEmailStore();
   const [token, setToken] = useState("");
 
   const isValid = token.length === 6;
@@ -100,7 +100,9 @@ const VerifyResetEmailContent = () => {
 
   const handleResendClick = async () => {
     if (resendTimer === 0) {
-      resendVerificationCode({ email: authEmail });
+      resendVerificationCode({
+        username: authUsername || authEmail
+      });
     }
   };
 

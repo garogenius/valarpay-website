@@ -328,7 +328,7 @@ const InternationalAirtimeBillSteps: React.FC<{ onClose: () => void }> = ({ onCl
                 onClick={() => {
                   if (!plan) return;
                   payIntl({
-                    phone: phoneNumber,
+                    phone: phoneNumber.replace(/\D/g, ""),
                     currency: "NGN",
                     operatorId: plan.operatorId,
                     amount: Number(amountForPayment),

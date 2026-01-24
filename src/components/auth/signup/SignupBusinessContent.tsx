@@ -71,7 +71,7 @@ const SignupBusinessContent = () => {
   const theme = useTheme();
   const [currencyState, setCurrencyState] = useState(false);
   const [registeredState, setRegisteredState] = useState(false);
-  const { setAuthEmail } = useAuthEmailStore();
+  const { setAuthEmail, setAuthUsername } = useAuthEmailStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -120,7 +120,10 @@ const SignupBusinessContent = () => {
     });
   };
 
-  const onSuccess = () => {
+  const onSuccess = (data: any) => {
+    const user = data?.data?.user || data?.user;
+    setAuthEmail(user?.email);
+    setAuthUsername(user?.username);
     SuccessToast({
       title: "Registration successful!",
       description:
@@ -140,6 +143,7 @@ const SignupBusinessContent = () => {
 
   const onSubmit = async (data: RegisterFormData) => {
     setAuthEmail(data?.email);
+    setAuthUsername(data?.username);
     const registerData = {
       ...data,
       countryCode: data.currency,
@@ -290,7 +294,7 @@ const SignupBusinessContent = () => {
                       {...register("username")}
                     />
                   </div>
-                  
+
                   <AuthInput
                     id="fullname"
                     label="Full Name"

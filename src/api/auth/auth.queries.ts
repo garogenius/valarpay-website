@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   forgotPasswordRequest,
   loginRequest,
+  passcodeLoginRequest,
   registerRequest,
   resendVerificationCodeRequest,
   verifyEmailRequest,
@@ -13,12 +14,24 @@ import {
   resetPasswordRequest,
 } from "./auth.apis";
 
+
 export const useLogin = (
   onError: (error: any) => void,
   onSuccess: (data: any) => void
 ) => {
   return useMutation({
     mutationFn: loginRequest,
+    onError,
+    onSuccess,
+  });
+};
+
+export const usePasscodeLogin = (
+  onError: (error: any) => void,
+  onSuccess: (data: any) => void
+) => {
+  return useMutation({
+    mutationFn: passcodeLoginRequest,
     onError,
     onSuccess,
   });

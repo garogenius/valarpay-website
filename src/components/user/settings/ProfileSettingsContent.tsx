@@ -233,7 +233,7 @@ const ProfileSettingsContent = () => {
   const issueDatePickerRef = useRef<HTMLDivElement>(null);
   const expiryDatePickerRef = useRef<HTMLDivElement>(null);
   const [openKycDocumentUpload, setOpenKycDocumentUpload] = useState(false);
-  
+
   // Personal tab dropdowns
   const [employmentStatusDropdownOpen, setEmploymentStatusDropdownOpen] = useState(false);
   const employmentStatusDropdownRef = useRef<HTMLDivElement>(null);
@@ -483,11 +483,11 @@ const ProfileSettingsContent = () => {
 
   type SavedKycDocument = {
     documentType:
-      | "passport"
-      | "bank_statement"
-      | "utility_bill"
-      | "drivers_license"
-      | "national_id";
+    | "passport"
+    | "bank_statement"
+    | "utility_bill"
+    | "drivers_license"
+    | "national_id";
     documentUrl?: string;
     documentNumber?: string;
     documentCountry?: string;
@@ -699,9 +699,8 @@ const ProfileSettingsContent = () => {
                   key={t.key}
                   onClick={() => setTab(t.key)}
                   type="button"
-                  className={`flex-1 min-w-0 text-[10px] xs:text-[11px] sm:text-xs px-2.5 xs:px-3 sm:px-4 py-2 rounded-full whitespace-nowrap truncate leading-none transition-colors ${
-                    tab === t.key ? "bg-[#2C2C2E] text-white" : "text-gray-300 hover:bg-[#1C1C1E]"
-                  }`}
+                  className={`flex-1 min-w-0 text-[10px] xs:text-[11px] sm:text-xs px-2.5 xs:px-3 sm:px-4 py-2 rounded-full whitespace-nowrap truncate leading-none transition-colors ${tab === t.key ? "bg-[#2C2C2E] text-white" : "text-gray-300 hover:bg-[#1C1C1E]"
+                    }`}
                 >
                   {t.label}
                 </button>
@@ -1134,7 +1133,7 @@ const ProfileSettingsContent = () => {
                           className="w-full flex gap-2 justify-between items-center bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-4 px-3 text-left"
                         >
                           <span className={`text-base ${watch("employmentStatus") ? "text-text-200 dark:text-white" : "text-text-200 dark:text-text-1000"}`}>
-                            {watch("employmentStatus") 
+                            {watch("employmentStatus")
                               ? EMPLOYMENT_STATUS_OPTIONS.find(s => s.value === watch("employmentStatus"))?.label || watch("employmentStatus")
                               : "Select employment status"}
                           </span>
@@ -1200,7 +1199,7 @@ const ProfileSettingsContent = () => {
                           className="w-full flex gap-2 justify-between items-center bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-4 px-3 text-left"
                         >
                           <span className={`text-base ${watch("primaryPurpose") ? "text-text-200 dark:text-white" : "text-text-200 dark:text-text-1000"}`}>
-                            {watch("primaryPurpose") 
+                            {watch("primaryPurpose")
                               ? PRIMARY_PURPOSE_OPTIONS.find(p => p.value === watch("primaryPurpose"))?.label || watch("primaryPurpose")
                               : "Select primary purpose"}
                           </span>
@@ -1243,7 +1242,7 @@ const ProfileSettingsContent = () => {
                           className="w-full flex gap-2 justify-between items-center bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-4 px-3 text-left"
                         >
                           <span className={`text-base ${watch("sourceOfFunds") ? "text-text-200 dark:text-white" : "text-text-200 dark:text-text-1000"}`}>
-                            {watch("sourceOfFunds") 
+                            {watch("sourceOfFunds")
                               ? SOURCE_OF_FUNDS_OPTIONS.find(s => s.value === watch("sourceOfFunds"))?.label || watch("sourceOfFunds")
                               : "Select source of funds"}
                           </span>
@@ -1336,12 +1335,12 @@ const ProfileSettingsContent = () => {
                         {savedKycDocument.documentType === "passport"
                           ? "International Passport"
                           : savedKycDocument.documentType === "bank_statement"
-                          ? "Bank Statement"
-                          : savedKycDocument.documentType === "utility_bill"
-                          ? "Utility Bill"
-                          : savedKycDocument.documentType === "drivers_license"
-                          ? "Driver's License"
-                          : "National ID"}
+                            ? "Bank Statement"
+                            : savedKycDocument.documentType === "utility_bill"
+                              ? "Utility Bill"
+                              : savedKycDocument.documentType === "drivers_license"
+                                ? "Driver's License"
+                                : "National ID"}
                       </p>
                       <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-white/70">
                         {savedKycDocument.documentNumber ? (
@@ -1385,17 +1384,17 @@ const ProfileSettingsContent = () => {
                     className="w-full flex gap-2 justify-between items-center bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-4 px-3 text-left"
                   >
                     <span className={`text-base ${selectedDocumentType ? "text-text-200 dark:text-white" : "text-text-200 dark:text-text-1000"}`}>
-                      {selectedDocumentType === "passport" 
+                      {selectedDocumentType === "passport"
                         ? "International Passport"
                         : selectedDocumentType === "bank_statement"
-                        ? "Bank Statement"
-                        : selectedDocumentType === "utility_bill"
-                        ? "Utility Bill"
-                        : selectedDocumentType === "drivers_license"
-                        ? "Driver's License"
-                        : selectedDocumentType === "national_id"
-                        ? "National ID"
-                        : "Select document type"}
+                          ? "Bank Statement"
+                          : selectedDocumentType === "utility_bill"
+                            ? "Utility Bill"
+                            : selectedDocumentType === "drivers_license"
+                              ? "Driver's License"
+                              : selectedDocumentType === "national_id"
+                                ? "National ID"
+                                : "Select document type"}
                     </span>
                     <FiChevronRight className={`text-text-200 dark:text-text-400 transition-transform ${documentTypeDropdownOpen ? "rotate-90" : ""}`} />
                   </button>
@@ -1441,10 +1440,10 @@ const ProfileSettingsContent = () => {
                   <div>
                     <h3 className="text-white font-semibold text-lg mb-2">
                       {selectedDocumentType === "passport" ? "International Passport" :
-                       selectedDocumentType === "bank_statement" ? "Bank Statement" :
-                       selectedDocumentType === "utility_bill" ? "Utility Bill" :
-                       selectedDocumentType === "drivers_license" ? "Driver's License" :
-                       selectedDocumentType === "national_id" ? "National ID" : ""}
+                        selectedDocumentType === "bank_statement" ? "Bank Statement" :
+                          selectedDocumentType === "utility_bill" ? "Utility Bill" :
+                            selectedDocumentType === "drivers_license" ? "Driver's License" :
+                              selectedDocumentType === "national_id" ? "National ID" : ""}
                     </h3>
                     <p className="text-white/60 text-sm">Enter your passport details to save to your profile</p>
                   </div>
@@ -1674,7 +1673,7 @@ const ProfileSettingsContent = () => {
               biometricEnabled={false}
               biometricType={null}
               biometricDeviceName={null}
-              onToggleBiometric={() => {}}
+              onToggleBiometric={() => { }}
               onToggleFingerprint={() => {
                 if (!isFingerprintAvailable) {
                   ErrorToast({
@@ -1701,6 +1700,7 @@ const ProfileSettingsContent = () => {
               onOpenSetSecurity={() => setOpenSetSecurity(true)}
               onOpenLinked={() => setOpenLinked(true)}
               onOpenDelete={() => setOpenDelete(true)}
+              isPasscodeSet={(user as any)?.isPasscodeSet}
             />
           ) : null}
 

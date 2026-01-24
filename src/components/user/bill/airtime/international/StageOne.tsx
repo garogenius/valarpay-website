@@ -42,12 +42,12 @@ type StageOneProps = {
 
 const InternationalAirtimeStageOne: React.FC<StageOneProps> = ({
   setStage,
-  setPhone = () => {},
+  setPhone = () => { },
   setAmount,
-  setNetwork = () => {},
+  setNetwork = () => { },
   setOperatorId,
   isBeneficiaryChecked = false,
-  setIsBeneficiaryChecked = () => {},
+  setIsBeneficiaryChecked = () => { },
 }) => {
   const [minimumAmount, setMinimumAmount] = useState<number>(0);
   const [maxAmount, setMaximumAmount] = useState<number>(0);
@@ -154,7 +154,7 @@ const InternationalAirtimeStageOne: React.FC<StageOneProps> = ({
       return;
     }
     Promise.all([
-      Promise.resolve(setPhone(data.phone)),
+      Promise.resolve(setPhone(data.phone.replace(/\D/g, ""))),
       Promise.resolve(setNetwork(plan?.name)),
       Promise.resolve(
         setAmount(String(data.amount / plan?.fx?.rate + plan?.payAmount))
@@ -271,7 +271,7 @@ const InternationalAirtimeStageOne: React.FC<StageOneProps> = ({
               Plan
             </label>
             <div
-              onClick={() => {}}
+              onClick={() => { }}
               className="w-full flex gap-2 justify-center items-center bg-bg-2000 border border-border-600 rounded-lg py-4 px-3"
             >
               <div className="w-full flex items-center justify-between text-text-700 dark:text-text-1000">
@@ -328,16 +328,15 @@ const InternationalAirtimeStageOne: React.FC<StageOneProps> = ({
               <div className="w-full flex gap-2 justify-center items-center bg-white dark:bg-bg-2100 border border-border-600 rounded-lg py-4 px-3">
                 <input
                   className="w-full bg-transparent p-0 border-none outline-none text-base text-text-200 dark:text-white placeholder:text-[#797B86] dark:placeholder:text-text-1000 placeholder:text-sm"
-                  placeholder={`Enter amount  ${
-                    plan?.destinationCurrencyCode
+                  placeholder={`Enter amount  ${plan?.destinationCurrencyCode
                       ? `in ${plan?.destinationCurrencyCode}`
                       : ""
-                  }`}
+                    }`}
                   required={true}
                   type="number"
                   {...register("amount")}
-                  // onKeyDown={handleNumericKeyDown}
-                  // onPaste={handleNumericPaste}
+                // onKeyDown={handleNumericKeyDown}
+                // onPaste={handleNumericPaste}
                 />
               </div>
 

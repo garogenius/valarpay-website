@@ -300,13 +300,7 @@ const LoginContent = () => {
     reset({ ...form.getValues(), username: "", password: "", passcode: "" });
   };
 
-  const maskEmail = (email: string) => {
-    if (!email) return "";
-    const [name, domain] = email.split("@");
-    if (!name || !domain) return email;
-    const visible = name.slice(0, 4);
-    return `${visible}*******@${domain}`;
-  };
+
 
   const onSubmit = async (data: LoginFormData) => {
     // Ensure we use email from remembered user if available
@@ -451,9 +445,9 @@ const LoginContent = () => {
                     )}
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Continue with</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Welcome back</p>
                     <p className="font-medium text-black dark:text-white mt-0.5">
-                      {maskEmail(rememberedUser.email)}
+                      {rememberedUser.username}
                     </p>
                   </div>
                   <input type="hidden" {...register("username")} />

@@ -16,7 +16,7 @@ export const getBettingPlatformsRequest = async () => {
 export const fundBettingPlatformRequest = async (formdata: IFundBettingPlatform) => {
   return request({
     // Updated route (PalmPay): fund betting wallet
-    url: "/betting/wallet/fund",
+    url: "/bill/betting/palmpay/pay",
     method: "post",
     data: formdata,
   });

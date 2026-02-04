@@ -263,10 +263,11 @@ const BettingBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 onClick={() => {
                   if (!platform) return;
                   fundPlatform({
+                    platform: platform.code,
+                    platformUserId,
                     amount: Number(amount),
                     currency: "NGN",
                     walletPin,
-                    // Backend endpoint funds betting wallet (PalmPay). Keep platform/userId for UX and include in description.
                     description: `Funding ${platform.name} account${platformUserId ? ` (Customer ID: ${platformUserId})` : ""}`,
                   });
                 }}

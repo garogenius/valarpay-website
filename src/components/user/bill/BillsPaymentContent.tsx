@@ -82,7 +82,7 @@ const SECTIONS: Section[] = [
     title: "Betting & Currency",
     gridClass: "grid-cols-3",
     tiles: [
-      { label: "Betting", icon: SlTrophy, link: "/user/betting" },
+      { label: "Betting", icon: SlTrophy, modal: "betting" },
       { label: "Convert Currency", icon: LiaRedoAltSolid, modal: "convert" },
       { label: "Buy GiftCards", icon: MdCardGiftcard, modal: "giftcard_buy" },
     ],

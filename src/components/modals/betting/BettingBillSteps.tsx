@@ -16,7 +16,13 @@ import { useFundBettingPlatform, useGetBettingPlatforms } from "@/api/betting/be
 
 type Step = "details" | "confirm";
 
-type Platform = { code: string; name: string; enabled?: boolean };
+type Platform = {
+  code: string;
+  name: string;
+  isActive?: boolean;
+  minAmount?: number;
+  maxAmount?: number;
+};
 
 const BettingBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { user } = useUserStore();
@@ -42,7 +48,7 @@ const BettingBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const platformsLoading = platformsPending && !platformsError;
 
   const filteredPlatforms = useMemo(
-    () => (platforms || []).filter((p) => p.enabled !== false),
+    () => (platforms || []).filter((p) => p.isActive !== false),
     [platforms]
   );
 
@@ -88,7 +94,9 @@ const BettingBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { mutate: fundPlatform, isPending: payPending, isError: payErr } = useFundBettingPlatform(onPayError, onPaySuccess);
   const paying = payPending && !payErr;
 
-  const canNext = !!platform && platformUserId.length >= 3 && amount >= 100;
+  const min = platform?.minAmount || 100;
+  const max = platform?.maxAmount || Infinity;
+  const canNext = !!platform && platformUserId.length >= 3 && amount >= min && amount <= max;
   const canPay = canNext && walletPin.length === 4;
 
   return (
@@ -139,7 +147,13 @@ const BettingBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                           key={p.code}
                           type="button"
                           onClick={() => {
-                            setPlatform({ code: p.code, name: p.name, enabled: p.enabled });
+                            setPlatform({
+                              code: p.code,
+                              name: p.name,
+                              isActive: p.isActive,
+                              minAmount: p.minAmount,
+                              maxAmount: p.maxAmount,
+                            });
                             setPlatformOpen(false);
                           }}
                           className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors"
@@ -179,7 +193,10 @@ const BettingBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     inputMode="decimal"
                   />
                 </div>
-                <p className="text-[11px] text-gray-500 dark:text-gray-400">Minimum ₦100</p>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                  Minimum {formatNgn(platform?.minAmount || 100)}
+                  {platform?.maxAmount ? ` • Maximum ${formatNgn(platform.maxAmount)}` : ""}
+                </p>
               </div>
 
               {amount > 0 ? (
@@ -279,7 +296,7 @@ const BettingBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           )}
         </div>
-      </div>
+      </div >
 
       {transactionData && (
         <GlobalTransactionHistoryModal
@@ -296,7 +313,8 @@ const BettingBillSteps: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           }}
           transaction={transactionData}
         />
-      )}
+      )
+      }
     </>
   );
 };

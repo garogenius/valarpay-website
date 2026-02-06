@@ -23,10 +23,11 @@ const FundPlatformModal: React.FC<FundPlatformModalProps> = ({ isOpen, onClose, 
   const ngnBalance = (user?.wallet || []).find((w: any) => w.currency === "NGN")?.balance || 0;
   const { platforms, isPending: platformsLoading, isError: platformsError, refetch: refetchPlatforms } =
     useGetBettingPlatforms();
-  
+
   const [selectedPlatform, setSelectedPlatform] = useState<BettingPlatform | null>(null);
   const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
   const [amount, setAmount] = useState("");
+  const [platformUserId, setPlatformUserId] = useState("");
   const [remark, setRemark] = useState("");
   const [showPinModal, setShowPinModal] = useState(false);
   const [pendingPayload, setPendingPayload] = useState<any>(null);
@@ -53,6 +54,7 @@ const FundPlatformModal: React.FC<FundPlatformModalProps> = ({ isOpen, onClose, 
   const resetAndClose = () => {
     setSelectedPlatform(null);
     setAmount("");
+    setPlatformUserId("");
     setRemark("");
     setShowPlatformDropdown(false);
     setShowPinModal(false);
@@ -72,9 +74,14 @@ const FundPlatformModal: React.FC<FundPlatformModalProps> = ({ isOpen, onClose, 
       return;
     }
 
+    if (!platformUserId || platformUserId.length < 3) {
+      ErrorToast({ title: "Validation Error", descriptions: ["Please enter a valid Customer ID"] });
+      return;
+    }
+
     const minAmount = selectedPlatform.minAmount || 0;
     const maxAmount = selectedPlatform.maxAmount;
-    
+
     if (amountNum < minAmount) {
       ErrorToast({ title: "Validation Error", descriptions: [`Minimum amount is ₦${minAmount.toLocaleString()}`] });
       return;
@@ -91,9 +98,10 @@ const FundPlatformModal: React.FC<FundPlatformModalProps> = ({ isOpen, onClose, 
     }
 
     setPendingPayload({
+      platform: selectedPlatform.code,
+      platformUserId: platformUserId.trim(),
       amount: amountNum,
       currency: "NGN",
-      // API supports description; we keep platform selection for UX/context
       description: remark.trim() || `Funding betting wallet (${selectedPlatform.name})`,
     });
     setShowPinModal(true);
@@ -179,6 +187,18 @@ const FundPlatformModal: React.FC<FundPlatformModalProps> = ({ isOpen, onClose, 
               )}
             </div>
 
+            {/* Customer ID */}
+            <div>
+              <label className="text-gray-400 text-sm mb-2 block">Customer ID</label>
+              <input
+                type="text"
+                value={platformUserId}
+                onChange={(e) => setPlatformUserId(e.target.value)}
+                placeholder="Enter your customer ID"
+                className="w-full bg-[#1C1C1E] border border-gray-800 rounded-lg px-4 py-3 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-gray-700"
+              />
+            </div>
+
             {/* Amount */}
             <div>
               <label className="text-gray-400 text-sm mb-2 block">
@@ -227,7 +247,7 @@ const FundPlatformModal: React.FC<FundPlatformModalProps> = ({ isOpen, onClose, 
               </button>
               <CustomButton
                 onClick={handleFund}
-                disabled={!selectedPlatform || !amount || Number(amount) <= 0 || Number(amount) > ngnBalance || funding}
+                disabled={!selectedPlatform || !amount || !platformUserId || Number(amount) <= 0 || Number(amount) > ngnBalance || funding}
                 isLoading={funding}
                 className="flex-1 py-3 rounded-full text-sm"
               >

@@ -14,7 +14,7 @@ export const getEducationBillerItemsRequest = async ({
   billerCode: string;
 }) => {
   return request({
-    url: `/bill/education/biller-items?billerCode=${billerCode}`,
+    url: `/bill/remita/education/biller-items?billerCode=${billerCode}`,
     method: "get",
   });
 };
@@ -41,7 +41,7 @@ export const verifyEducationCustomerRequest = async (
   formdata: IVerifyEducationCustomer
 ) => {
   return request({
-    url: "/bill/education/verify-customer",
+    url: "/bill/remita/education/verify-customer",
     method: "post",
     data: formdata,
   });
@@ -87,23 +87,35 @@ export const paySchoolFeeRequest = async (formdata: {
 };
 
 // JAMB & WAEC APIs
-export const getWaecPlanRequest = async () => {
+export const getVendingProvidersRequest = async (page: number = 0, size: number = 20) => {
   return request({
-    url: "/bill/waec/get-plan",
+    url: `/bill/remita/vending/providers?page=${page}&size=${size}`,
     method: "get",
   });
 };
 
-export const getJambPlanRequest = async () => {
+export const getVendingProductsRequest = async ({
+  provider,
+  page = 0,
+  pageSize = 20,
+  countryCode = "NGA",
+  categoryCode = "educations",
+}: {
+  provider: string;
+  page?: number;
+  pageSize?: number;
+  countryCode?: string;
+  categoryCode?: string;
+}) => {
   return request({
-    url: "/bill/jamb/get-plan",
+    url: `/bill/remita/vending/products?provider=${provider}&page=${page}&pageSize=${pageSize}&countryCode=${countryCode}&categoryCode=${categoryCode}`,
     method: "get",
   });
 };
 
 export const verifyWaecBillerNumberRequest = async (formdata: IVerifyJambWaec) => {
   return request({
-    url: "/bill/waec/verify-biller-number",
+    url: "/bill/remita/waec/verify-biller-number",
     method: "post",
     data: formdata,
   });
@@ -111,7 +123,7 @@ export const verifyWaecBillerNumberRequest = async (formdata: IVerifyJambWaec) =
 
 export const verifyJambBillerNumberRequest = async (formdata: IVerifyJambWaec) => {
   return request({
-    url: "/bill/jamb/verify-biller-number",
+    url: "/bill/remita/jamb/verify-biller-number",
     method: "post",
     data: formdata,
   });

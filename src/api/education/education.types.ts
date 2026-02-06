@@ -1,62 +1,61 @@
 export type EducationBiller = {
-  id?: string | number;
-  billerId?: string;
-  billerCode: string;
-  billerName?: string;
-  name?: string;
+  billerId: string;
+  billerName: string;
+  billerShortName?: string;
+  billerLogoUrl?: string;
+  countryCode?: string;
   category?: string;
+  description?: string;
 };
 
 export type EducationBillerItem = {
-  id?: string | number;
-  itemCode: string;
-  itemName?: string;
-  name?: string;
-  amount?: number;
-  fee?: number;
-  currency?: string;
+  billPaymentProductId: string;
+  billPaymentProductName: string;
+  isAmountFixed: boolean;
+  amount: number;
+  currency: string;
+  payAmount: number;
 };
 
 export type IVerifyEducationCustomer = {
-  billerCode: string;
-  itemCode: string;
-  customerId: string;
+  itemCode: string; // billPaymentProductId
+  billerCode: string; // billerId
+  billerNumber: string; // customerId
 };
 
 export type VerifiedEducationCustomer = {
   customerName?: string;
-  customerId?: string;
+  billerNumber?: string;
   amount?: number;
-  billerName?: string;
-  itemName?: string;
   [k: string]: any;
 };
 
 export type IPayEducation = {
-  billerCode: string;
   itemCode: string;
-  customerId: string;
-  amount: number;
+  billerCode: string;
   currency: string;
+  billerNumber: string;
+  amount: number;
   walletPin: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
   addBeneficiary?: boolean;
 };
 
 // JAMB & WAEC Types
-export type JambWaecPlan = {
-  id: number;
+export type VendingProvider = {
+  code: string;
   name: string;
-  amount: number;
-  itemCode?: string;
+  description?: string;
+  logoUrl?: string;
+  category?: string;
 };
 
-export type JambWaecPlanData = {
-  billerCode: string;
-  billerName: string;
-  plans: JambWaecPlan[];
+export type VendingProduct = {
+  billPaymentProductId: string;
+  billPaymentProductName: string;
+  isAmountFixed: boolean;
+  amount: number;
+  currency: string;
+  payAmount: number;
 };
 
 export type IVerifyJambWaec = {

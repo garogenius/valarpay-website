@@ -8,15 +8,15 @@ import type {
 
 export const getBettingPlatformsRequest = async () => {
   return request({
-    url: "/betting/platforms",
+    url: "/betting/palmpay/platforms",
     method: "get",
+    noAuth: true,
   });
 };
 
 export const fundBettingPlatformRequest = async (formdata: IFundBettingPlatform) => {
   return request({
-    // Updated route (PalmPay): fund betting wallet
-    url: "/bill/betting/palmpay/pay",
+    url: "/betting/palmpay/pay",
     method: "post",
     data: formdata,
   });

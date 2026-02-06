@@ -55,54 +55,34 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
   const [showSuccess, setShowSuccess] = useState(false);
   const [transactionData, setTransactionData] = useState<any>(null);
 
-  // Institutions list must come from GET /bill/school/get-plan?currency=NGN
+  // Education billers list: GET /bill/education/billers
   const {
-    institutions,
+    billers: institutions,
     isPending: institutionsPending,
     isError: institutionsError,
-  } = useGetSchoolFeePlan("NGN", true);
+  } = useGetEducationBillers();
   const institutionsLoading = institutionsPending && !institutionsError;
 
   const filteredBillers = useMemo(() => {
     const list = institutions || [];
     const getInstitutionLabel = (b: any) =>
       String(
-        b?.planName ||
-          b?.shortName ||
-          b?.billerName ||
-          b?.name ||
-          b?.description ||
-          b?.billerCode ||
-          b?.billerId ||
-          ""
+        b?.billerName ||
+        b?.billerShortName ||
+        b?.name ||
+        b?.description ||
+        b?.billerId ||
+        ""
       ).trim();
     return billerNameFilter
       ? list.filter((b: any) => billerNameFilter(getInstitutionLabel(b)))
       : list;
   }, [institutions, billerNameFilter]);
 
-  // Schools: returned shape: { id, name, amount, billerCode }
-  const billerCode = String(biller?.billerCode || biller?.code || biller?.billerId || "");
-  // Use school bill info endpoint to get plans/services
-  const { plans, isPending: itemsPending, isError: itemsError } = useGetSchoolBillInfo(billerCode);
+  const selectedBillerId = String(biller?.billerId || "");
+  // Use education biller items endpoint: GET /bill/remita/education/biller-items
+  const { items, isPending: itemsPending, isError: itemsError } = useGetEducationBillerItems(selectedBillerId);
   const itemsLoading = itemsPending && !itemsError;
-  
-  // Map plans to items format for compatibility
-  const items = plans.map((plan: any) => {
-    const planName = String(plan?.name || plan?.planName || plan?.itemName || "").trim();
-    // Prefer backend-provided itemCode; otherwise fall back to a stable derivation.
-    const derivedItemCode =
-      plan?.itemCode ||
-      plan?.code ||
-      (plan?.id != null ? `${billerCode}-${String(plan.id)}` : `${billerCode}-${planName.toUpperCase().replace(/\s+/g, "-")}`);
-    return {
-      itemCode: String(derivedItemCode),
-      itemName: planName,
-      name: planName,
-      amount: Number(plan?.amount) || 0,
-      _raw: plan,
-    };
-  });
 
   const onVerifyError = (error: any) => {
     const errorMessage = error?.response?.data?.message;
@@ -112,8 +92,7 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
 
   const onVerifySuccess = (data: any) => {
     const payload = data?.data?.data;
-    setVerifiedCustomerName(String(payload?.customerName || payload?.name || ""));
-    // Spec returns amount on verify; prefer it
+    setVerifiedCustomerName(String(payload?.customerName || ""));
     const verifiedAmount = Number(payload?.amount);
     if (Number.isFinite(verifiedAmount) && verifiedAmount > 0) {
       setAmountText(String(verifiedAmount));
@@ -121,8 +100,8 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
     setStep("confirm");
   };
 
-  // Use school verification endpoint
-  const { mutate: verifyCustomer, isPending: verifying, isError: verifyErr } = useVerifySchoolBillerNumber(
+  // Education verification: POST /bill/remita/education/verify-customer
+  const { mutate: verifyCustomer, isPending: verifying, isError: verifyErr } = useVerifyEducationCustomer(
     onVerifyError,
     onVerifySuccess
   );
@@ -150,27 +129,27 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
       paymentMethod: "Available Balance",
       senderName: user?.fullname || undefined,
       senderAccount: walletAccountNumber,
-      recipientName: String(biller?.billerName || biller?.name || "Education"),
+      recipientName: String(biller?.billerName || "Education"),
       recipientAccount: customerId,
       recipientBank: "Education",
-      description: String(item?.itemName || item?.name || "Education"),
-      provider: String(biller?.billerName || biller?.name || "Education"),
+      description: String(item?.billPaymentProductName || "Education"),
+      provider: String(biller?.billerName || "Education"),
       billerNumber: customerId,
-      planName: String(item?.itemName || item?.name || ""),
+      planName: String(item?.billPaymentProductName || ""),
     });
     setShowSuccess(true);
   };
 
-  // Use school payment endpoint
-  const { mutate: payEducation, isPending: payPending, isError: payErr } = usePaySchoolFee(onPayError, onPaySuccess);
+  // Education payment: POST /bill/education/school-fee/pay
+  const { mutate: payEducation, isPending: payPending, isError: payErr } = usePayEducationSchoolFee(onPayError, onPaySuccess);
   const paying = payPending && !payErr;
 
   const billerLabel = String(
-    biller?.planName || biller?.shortName || biller?.billerName || biller?.name || biller?.description || biller?.billerCode || ""
+    biller?.billerName || biller?.billerShortName || ""
   ).trim();
-  const itemLabel = String(item?.itemName || item?.name || "").trim();
+  const itemLabel = String(item?.billPaymentProductName || "").trim();
 
-  const canNext = !!billerCode && !!item?.itemCode && customerId.length >= 3 && amount > 0;
+  const canNext = !!selectedBillerId && !!item?.billPaymentProductId && customerId.length >= 3 && amount > 0;
   const canPay = canNext && walletPin.length === 4 && !!(verifiedCustomerName || user?.fullname);
 
   return (
@@ -204,9 +183,14 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
                   onClick={() => setInstitutionOpen((v) => !v)}
                   className="w-full flex items-center justify-between bg-[#F4F4F5] dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2.5 text-sm text-black dark:text-white"
                 >
-                  <span className={biller ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-600"}>
-                    {biller ? billerLabel : "Select institution"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {biller?.billerLogoUrl && (
+                      <img src={biller.billerLogoUrl} alt={billerLabel} className="w-5 h-5 rounded-full object-contain" />
+                    )}
+                    <span className={biller ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-600"}>
+                      {biller ? billerLabel : "Select institution"}
+                    </span>
+                  </div>
                   <span className="text-gray-500 dark:text-gray-500">▾</span>
                 </button>
                 {institutionOpen && (
@@ -218,7 +202,7 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
                     ) : (
                       (filteredBillers || []).map((b: any) => (
                         <button
-                          key={String(b.billerCode || b.billerId || b.id || b.billerName || b.name)}
+                          key={String(b.billerId || b.id || b.billerName || b.name)}
                           type="button"
                           onClick={() => {
                             setBiller(b);
@@ -227,13 +211,15 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
                             setCustomerId("");
                             setVerifiedCustomerName("");
                             setWalletPin("");
-                            // clear amount until service picked (or verify response overrides)
                             setAmountText("");
                             setInstitutionOpen(false);
                           }}
-                          className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors"
+                          className="w-full flex items-center gap-3 text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors"
                         >
-                          {String(b.planName || b.shortName || b.billerName || b.name || b.description || b.billerCode || b.billerId)}
+                          {b.billerLogoUrl && (
+                            <img src={b.billerLogoUrl} alt="" className="w-6 h-6 rounded-full object-contain bg-white p-0.5" />
+                          )}
+                          <span>{String(b.billerName || b.billerShortName || b.name || b.description)}</span>
                         </button>
                       ))
                     )}
@@ -245,12 +231,12 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
                 <label className="text-[11px] text-gray-500 dark:text-gray-400">Service</label>
                 <button
                   type="button"
-                  disabled={!billerCode}
-                  onClick={() => billerCode && setServiceOpen((v) => !v)}
+                  disabled={!selectedBillerId}
+                  onClick={() => selectedBillerId && setServiceOpen((v) => !v)}
                   className="w-full flex items-center justify-between bg-[#F4F4F5] dark:bg-[#141416] border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2.5 text-sm text-black dark:text-white disabled:opacity-60"
                 >
                   <span className={item ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-600"}>
-                    {item ? itemLabel : billerCode ? "Select service" : "Select institution first"}
+                    {item ? itemLabel : selectedBillerId ? "Select service" : "Select institution first"}
                   </span>
                   <span className="text-gray-500 dark:text-gray-500">▾</span>
                 </button>
@@ -267,7 +253,7 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
                     ) : (
                       (items || []).map((it: any) => (
                         <button
-                          key={String(it.itemCode)}
+                          key={String(it.billPaymentProductId)}
                           type="button"
                           onClick={() => {
                             setItem(it);
@@ -278,7 +264,7 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
                           }}
                           className="w-full text-left px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-[#1C1C1E] transition-colors"
                         >
-                          {String(it.itemName || it.name || it.itemCode)}
+                          {String(it.billPaymentProductName || it.name || it.billPaymentProductId)}
                         </button>
                       ))
                     )}
@@ -406,11 +392,11 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
           {step === "details" ? (
             <button
               onClick={() => {
-                if (!billerCode || !item?.itemCode) return;
-                verifyCustomer({ 
-                  billerCode, 
-                  itemCode: String(item.itemCode), 
-                  billerNumber: customerId 
+                if (!selectedBillerId || !item?.billPaymentProductId) return;
+                verifyCustomer({
+                  billerCode: selectedBillerId,
+                  itemCode: String(item.billPaymentProductId),
+                  billerNumber: customerId
                 });
               }}
               disabled={!canNext || verifyLoading}
@@ -428,10 +414,10 @@ const EducationBillSteps: React.FC<{ onClose: () => void; billerNameFilter?: (na
               </button>
               <button
                 onClick={() => {
-                  if (!billerCode || !item?.itemCode) return;
+                  if (!selectedBillerId || !item?.billPaymentProductId) return;
                   payEducation({
-                    itemCode: String(item.itemCode),
-                    billerCode,
+                    itemCode: String(item.billPaymentProductId),
+                    billerCode: selectedBillerId,
                     currency: "NGN",
                     billerNumber: customerId,
                     amount: Number(amount),

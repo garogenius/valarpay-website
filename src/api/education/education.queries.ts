@@ -6,8 +6,6 @@ import {
   getEducationBillersRequest,
   payEducationSchoolFeeRequest,
   verifyEducationCustomerRequest,
-  getWaecPlanRequest,
-  getJambPlanRequest,
   verifyWaecBillerNumberRequest,
   verifyJambBillerNumberRequest,
   payWaecRequest,
@@ -16,6 +14,8 @@ import {
   getSchoolBillInfoRequest,
   verifySchoolBillerNumberRequest,
   paySchoolFeeRequest,
+  getVendingProvidersRequest,
+  getVendingProductsRequest,
 } from "./education.apis";
 import type {
   EducationBiller,
@@ -23,12 +23,13 @@ import type {
   IPayEducation,
   IVerifyEducationCustomer,
   VerifiedEducationCustomer,
-  JambWaecPlanData,
   IVerifyJambWaec,
   VerifiedJambWaec,
   IPayJambWaec,
   SchoolBillInfo,
   SchoolFeePlan,
+  VendingProvider,
+  VendingProduct,
 } from "./education.types";
 
 export const useGetSchoolFeePlan = (currency: string = "NGN", enabled: boolean = true) => {
@@ -58,7 +59,15 @@ export const useGetEducationBillers = () => {
     queryKey: ["education-billers"],
     queryFn: getEducationBillersRequest,
   });
-  const billers: EducationBiller[] = data?.data?.data ?? data?.data ?? [];
+  const body = data?.data;
+  const payload = body?.data ?? body;
+  const billers: EducationBiller[] = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.content)
+      ? payload.content
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : [];
   return { billers, isPending, isError };
 };
 
@@ -68,7 +77,15 @@ export const useGetEducationBillerItems = (billerCode: string) => {
     queryFn: () => getEducationBillerItemsRequest({ billerCode }),
     enabled: !!billerCode,
   });
-  const items: EducationBillerItem[] = data?.data?.data ?? data?.data ?? [];
+  const body = data?.data;
+  const payload = body?.data ?? body;
+  const items: EducationBillerItem[] = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.content)
+      ? payload.content
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : [];
   return { items, isPending, isError };
 };
 
@@ -141,7 +158,7 @@ export const usePaySchoolFee = (
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { itemCode: string; billerCode: string; currency: string; billerNumber: string; amount: number; walletPin: string; addBeneficiary?: boolean }) => 
+    mutationFn: (payload: { itemCode: string; billerCode: string; currency: string; billerNumber: string; amount: number; walletPin: string; addBeneficiary?: boolean }) =>
       paySchoolFeeRequest(payload),
     onError,
     onSuccess: (data) => {
@@ -152,27 +169,54 @@ export const usePaySchoolFee = (
   });
 };
 
-// JAMB & WAEC Hooks
-export const useGetWaecPlan = (enabled: boolean = true) => {
+// Vending Hooks
+export const useGetVendingProviders = (page: number = 0, size: number = 20) => {
   const { data, isPending, isError } = useQuery({
-    queryKey: ["waec-plan"],
-    queryFn: getWaecPlanRequest,
-    enabled,
-    retry: 2,
+    queryKey: ["vending-providers", page, size],
+    queryFn: () => getVendingProvidersRequest(page, size),
   });
-  const planData: JambWaecPlanData | null = data?.data?.data ?? null;
-  return { planData, isPending, isError };
+  const body = data?.data;
+  // Deep search for providers array
+  const providers: VendingProvider[] = (() => {
+    const p1 = body?.data;
+    const p2 = p1?.data;
+    if (Array.isArray(p1)) return p1;
+    if (Array.isArray(p2)) return p2;
+    if (Array.isArray(p2?.products)) return p2.products;
+    if (Array.isArray(p1?.products)) return p1.products;
+    if (Array.isArray(p2?.content)) return p2.content;
+    if (Array.isArray(p1?.content)) return p1.content;
+    return [];
+  })();
+  return { providers, isPending, isError };
 };
 
-export const useGetJambPlan = (enabled: boolean = true) => {
+export const useGetVendingProducts = (params: {
+  provider: string;
+  page?: number;
+  pageSize?: number;
+  countryCode?: string;
+  categoryCode?: string;
+}) => {
   const { data, isPending, isError } = useQuery({
-    queryKey: ["jamb-plan"],
-    queryFn: getJambPlanRequest,
-    enabled,
-    retry: 2,
+    queryKey: ["vending-products", params],
+    queryFn: () => getVendingProductsRequest(params),
+    enabled: !!params.provider,
   });
-  const planData: JambWaecPlanData | null = data?.data?.data ?? null;
-  return { planData, isPending, isError };
+  const body = data?.data;
+  // Deep search for products array
+  const products: VendingProduct[] = (() => {
+    const p1 = body?.data;
+    const p2 = p1?.data;
+    if (Array.isArray(p1)) return p1;
+    if (Array.isArray(p2)) return p2;
+    if (Array.isArray(p2?.products)) return p2.products;
+    if (Array.isArray(p1?.products)) return p1.products;
+    if (Array.isArray(p2?.content)) return p2.content;
+    if (Array.isArray(p1?.content)) return p1.content;
+    return [];
+  })();
+  return { products, isPending, isError };
 };
 
 export const useVerifyWaecBillerNumber = (

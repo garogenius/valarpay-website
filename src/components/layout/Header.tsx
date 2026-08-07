@@ -79,8 +79,8 @@ export default function Header() {
         <div className="w-full h-full px-[10px] md:px-[24px] flex items-center justify-between">
         
         {/* Logo Group */}
-        <Link href="/" className="flex items-center">
-          <div className="relative w-[160px] h-[45px] md:w-[260px] md:h-[65px] flex items-center justify-center">
+        <Link href="/" className="flex items-center -ml-3 md:ml-0">
+          <div className="relative w-[130px] h-[40px] md:w-[260px] md:h-[65px] flex items-center justify-start md:justify-center">
             <Image src="/images/logo.png" alt="ValarPay Logo" fill className="object-contain" priority />
           </div>
         </Link>

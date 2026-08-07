@@ -3,7 +3,7 @@ import PolicyLayout from '@/components/legal/PolicyLayout';
 
 export default function TermsOfUse() {
   return (
-    <PolicyLayout title="Terms of Use" lastUpdated="January 10, 2026">
+    <PolicyLayout title="Terms of Use" lastUpdated="April 20, 2026">
       <h2>1. Acceptance of Terms</h2>
       <p>
         By accessing and using ValarPay's website, API, or mobile applications (collectively, the "Services"), you agree to comply with and be bound by these Terms of Use. If you do not agree to these terms, you may not access or use the Services.

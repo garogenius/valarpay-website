@@ -98,7 +98,7 @@ export default function Footer() {
         <div className="w-full h-[1px] bg-[#C8C8C8] md:border-t md:border-[rgba(82,81,81,0.53)] md:bg-transparent"></div>
         <div className="flex flex-col md:flex-row items-center justify-center md:justify-center pt-[23px] md:pt-[8px] gap-[23px] md:gap-[3px]">
           <span className="font-poppins text-[14px] leading-[21px] text-black">
-            © 2023 ValarPay • All Rights Reserved
+            © 2026 ValarPay • All Rights Reserved
           </span>
           {/* Mobile Socials */}
           <div className="flex md:hidden flex-row items-center gap-[18px]">

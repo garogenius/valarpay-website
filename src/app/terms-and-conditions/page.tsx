@@ -3,7 +3,7 @@ import PolicyLayout from '@/components/legal/PolicyLayout';
 
 export default function TermsAndConditions() {
   return (
-    <PolicyLayout title="Terms & Conditions" lastUpdated="February 15, 2026">
+    <PolicyLayout title="Terms & Conditions" lastUpdated="April 20, 2026">
       <h2>1. Introduction</h2>
       <p>
         These Terms & Conditions ("T&C") govern your access to and use of the financial services provided by VALAR GLOBAL SERVICES LIMITED ("ValarPay", "we", "us", or "our"). These T&C form a legally binding contract between you and ValarPay.

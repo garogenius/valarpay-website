@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FloatingWidgets from "@/components/FloatingWidgets";
-import CookieConsentModal from "@/components/modals/CookieConsentModal";
+// import CookieConsentModal from "@/components/modals/CookieConsentModal";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="flex-1 w-full relative">{children}</main>
         <Footer />
         <FloatingWidgets />
-        <CookieConsentModal />
+        {/* <CookieConsentModal /> */}
       </body>
     </html>
   );

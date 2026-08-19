@@ -10,7 +10,7 @@ export default function BlogCard({ post, featured = false }: { post: BlogPost, f
       <Link href={`/blog/${post.slug}`} className="group block md:col-span-2 relative overflow-hidden rounded-[24px] bg-[#0A192F] border border-blue-900/30 hover:border-[#1D9BF0]/50 transition-all duration-300 shadow-xl">
         <div className="flex flex-col md:flex-row h-full">
           <div className="w-full md:w-1/2 relative min-h-[300px] md:min-h-[400px]">
-            <Image src={post.image} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+            <Image src={post.image || '/images/image.png'} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
             <div className="absolute top-4 left-4 bg-[#FF5E00] text-white text-[12px] font-bold uppercase tracking-wider px-3 py-1 rounded-full z-10">
               Featured
             </div>
@@ -38,7 +38,7 @@ export default function BlogCard({ post, featured = false }: { post: BlogPost, f
   return (
     <Link href={`/blog/${post.slug}`} className="group flex flex-col overflow-hidden rounded-[24px] bg-[#0A192F] border border-blue-900/30 hover:border-[#1D9BF0]/50 transition-all duration-300 shadow-lg hover:shadow-2xl">
       <div className="w-full relative h-[250px] overflow-hidden">
-        <Image src={post.image} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+        <Image src={post.image || '/images/image.png'} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
       </div>
       <div className="p-6 md:p-8 flex flex-col flex-1">
         <div className="flex items-center justify-between text-[12px] text-blue-300/70 mb-4 font-medium uppercase tracking-wide">

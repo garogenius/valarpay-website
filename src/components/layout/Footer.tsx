@@ -115,24 +115,24 @@ export default function Footer() {
 function SocialIcons() {
   return (
     <>
-      <a href="#" className="w-[24px] h-[24px] rounded-full bg-[#1877F2] flex items-center justify-center text-white hover:opacity-80 transition-opacity">
+      <a href="https://www.facebook.com/61575829204201/albums/122134472168860973/" target="_blank" rel="noopener noreferrer" className="w-[24px] h-[24px] rounded-full bg-[#1877F2] flex items-center justify-center text-white hover:opacity-80 transition-opacity">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
         </svg>
       </a>
-      <a href="#" className="w-[24px] h-[24px] rounded-[6px] bg-[#1D9BF0] flex items-center justify-center text-white hover:opacity-80 transition-opacity">
+      <a href="https://www.snapchat.com/spotlight/W7_EDlXWTBiXAEEniNoMPwAAYYnF1bnR5Y25pAZ5rCyGyAZ5rCv3tAAAAAQ/embed" target="_blank" rel="noopener noreferrer" className="w-[24px] h-[24px] rounded-[6px] bg-[#FFFC00] flex items-center justify-center text-black hover:opacity-80 transition-opacity">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+          <path d="M12.06 2c-3.14 0-5.94 1.83-7 4.67-.13.34-.19.7-.19 1.05 0 1.25.64 2.45 1.74 3.25l.55.4c-.75-.24-1.57-.22-2.3.06-1.07.41-1.93 1.2-2.4 2.23-.48 1.03-.49 2.22 0 3.26.47 1.02 1.34 1.8 2.41 2.21.57.22 1.18.28 1.78.18.33 1 .95 1.88 1.77 2.48.97.7 2.24 1.1 3.58 1.1h1.06c1.34 0 2.61-.4 3.58-1.1.82-.6 1.44-1.48 1.77-2.48.6.1 1.21.04 1.78-.18 1.07-.41 1.94-1.19 2.41-2.21.49-1.04.48-2.23 0-3.26-.47-1.03-1.33-1.82-2.4-2.23-.73-.28-1.55-.3-2.3-.06l.55-.4c1.1-.8 1.74-2 1.74-3.25 0-.35-.06-.71-.19-1.05-1.06-2.84-3.86-4.67-7-4.67z" />
         </svg>
       </a>
-      <a href="#" className="w-[24px] h-[24px] rounded-[6px] flex items-center justify-center text-white hover:opacity-80 transition-opacity" style={{ background: 'linear-gradient(219.2deg, #AE3DAE 11.15%, #CE2E69 28.62%, #FF1800 45.15%, #F79A2E 88.91%)' }}>
+      <a href="https://www.instagram.com/valarpay_beyond_bank/" target="_blank" rel="noopener noreferrer" className="w-[24px] h-[24px] rounded-[6px] flex items-center justify-center text-white hover:opacity-80 transition-opacity" style={{ background: 'linear-gradient(219.2deg, #AE3DAE 11.15%, #CE2E69 28.62%, #FF1800 45.15%, #F79A2E 88.91%)' }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
           <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
           <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
         </svg>
       </a>
-      <a href="#" className="w-[24px] h-[24px] rounded-full bg-[#0A66C2] flex items-center justify-center text-white hover:opacity-80 transition-opacity">
+      <a href="https://www.linkedin.com/company/valarpay-local-global-bank" target="_blank" rel="noopener noreferrer" className="w-[24px] h-[24px] rounded-full bg-[#0A66C2] flex items-center justify-center text-white hover:opacity-80 transition-opacity">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
           <rect x="2" y="9" width="4" height="12"></rect>

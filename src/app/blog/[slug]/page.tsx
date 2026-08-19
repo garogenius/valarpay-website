@@ -2,8 +2,9 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Clock, UserCircle, Calendar, Share2, ArrowRight } from 'lucide-react';
-import { getPostBySlug, blogPosts } from '@/data/blog';
+import { ArrowLeft, Clock, UserCircle, Calendar, ArrowRight } from 'lucide-react';
+import NewsletterForm from '@/components/newsletter/NewsletterForm';
+import ShareButton from '@/components/blog/ShareButton';
 
 interface PageProps {
   params: Promise<{
@@ -11,31 +12,78 @@ interface PageProps {
   }>;
 }
 
+// Utility to calculate read time
+const calculateReadTime = (content: string) => `${Math.max(1, Math.ceil((content?.length || 0) / 1000))} min read`;
+
 export default async function BlogArticlePage({ params }: PageProps) {
   const resolvedParams = await params;
-  const post = getPostBySlug(resolvedParams.slug);
+  
+  let post = null;
+  let recentPosts = [];
+
+  try {
+    // Fetch individual post
+    const postRes = await fetch(`https://amiable-unity-production-1554.up.railway.app/valarpay/news/${resolvedParams.slug}`, {
+      next: { revalidate: 60 }
+    });
+    
+    if (postRes.ok) {
+      const item = await postRes.json();
+      post = {
+        id: item.id,
+        slug: item.id,
+        title: item.title,
+        content: item.content,
+        image: item.thumbnail,
+        date: new Date(item.createdAt).toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        }),
+        author: 'ValarPay Team',
+        category: item.tags && item.tags.length > 0 ? item.tags[0] : 'News',
+        readTime: calculateReadTime(item.content),
+      };
+    }
+
+    // Fetch recent posts
+    const recentRes = await fetch('https://amiable-unity-production-1554.up.railway.app/valarpay/news', {
+      next: { revalidate: 60 }
+    });
+
+    if (recentRes.ok) {
+      const data = await recentRes.json();
+      recentPosts = data
+        .filter((item: any) => item.id !== resolvedParams.slug)
+        .slice(0, 3)
+        .map((item: any) => ({
+          id: item.id,
+          slug: item.id,
+          title: item.title,
+          image: item.thumbnail,
+          category: item.tags && item.tags.length > 0 ? item.tags[0] : 'News',
+        }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch blog post or recent posts:', error);
+  }
 
   if (!post) {
     notFound();
   }
 
-  // Get up to 3 recent posts excluding the current one
-  const recentPosts = blogPosts.filter(p => p.id !== post.id).slice(0, 3);
-
   return (
-    <div className="flex flex-col w-full min-h-screen bg-[#081220] text-blue-50 pb-24">
+    <div className="flex flex-col w-full min-h-screen bg-[#081220] text-blue-50">
       
       {/* Top Navigation */}
       <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 pt-12 pb-6 flex items-center justify-between">
         <Link href="/blog" className="inline-flex items-center gap-2 text-blue-300 hover:text-white transition-colors text-[14px] font-medium">
           <ArrowLeft size={16} /> Back to Blog
         </Link>
-        <button className="inline-flex items-center gap-2 text-blue-300 hover:text-[#1D9BF0] transition-colors text-[14px] font-medium">
-          <Share2 size={16} /> Share
-        </button>
+        <ShareButton title={post ? post.title : "ValarPay Blog"} />
       </div>
 
-      <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start pb-24">
         
         {/* Main Article Content (Left Side) */}
         <article className="lg:col-span-8 w-full">
@@ -63,7 +111,9 @@ export default async function BlogArticlePage({ params }: PageProps) {
 
           {/* Hero Image */}
           <div className="w-full relative h-[250px] md:h-[450px] rounded-[24px] overflow-hidden mb-12 shadow-2xl border border-blue-900/30">
-            <Image src={post.image} alt={post.title} fill className="object-cover" priority />
+            {post.image && (
+              <Image src={post.image} alt={post.title} fill className="object-cover" priority />
+            )}
           </div>
 
           {/* Markdown/HTML Content */}
@@ -108,29 +158,39 @@ export default async function BlogArticlePage({ params }: PageProps) {
             </h3>
             
             <div className="flex flex-col gap-6">
-              {recentPosts.map((recentPost) => (
-                <Link href={`/blog/${recentPost.slug}`} key={recentPost.id} className="group flex items-start gap-4 pb-6 border-b border-blue-900/30 last:border-0 last:pb-0">
-                  {/* Thumbnail Image */}
-                  <div className="relative w-20 h-20 shrink-0 rounded-[12px] overflow-hidden border border-blue-900/40">
-                    <Image src={recentPost.image} alt={recentPost.title} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-                  </div>
-                  
-                  {/* Text Content */}
-                  <div className="flex flex-col justify-between h-full">
-                    <div className="flex items-center gap-2 text-[10px] md:text-[11px] font-bold text-blue-300/70 uppercase tracking-wide mb-1">
-                      <span className="text-[#FF5E00]">{recentPost.category}</span>
+              {recentPosts.length > 0 ? (
+                recentPosts.map((recentPost: any) => (
+                  <Link href={`/blog/${recentPost.slug}`} key={recentPost.id} className="group flex items-start gap-4 pb-6 border-b border-blue-900/30 last:border-0 last:pb-0">
+                    {/* Thumbnail Image */}
+                    <div className="relative w-20 h-20 shrink-0 rounded-[12px] overflow-hidden border border-blue-900/40">
+                      {recentPost.image ? (
+                        <Image src={recentPost.image} alt={recentPost.title} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full bg-blue-900/30"></div>
+                      )}
                     </div>
-                    <h4 className="text-white text-[14px] md:text-[15px] font-bold leading-snug group-hover:text-[#1D9BF0] transition-colors line-clamp-2">
-                      {recentPost.title}
-                    </h4>
-                  </div>
-                </Link>
-              ))}
+                    
+                    {/* Text Content */}
+                    <div className="flex flex-col justify-between h-full">
+                      <div className="flex items-center gap-2 text-[10px] md:text-[11px] font-bold text-blue-300/70 uppercase tracking-wide mb-1">
+                        <span className="text-[#FF5E00]">{recentPost.category}</span>
+                      </div>
+                      <h4 className="text-white text-[14px] md:text-[15px] font-bold leading-snug group-hover:text-[#1D9BF0] transition-colors line-clamp-2">
+                        {recentPost.title}
+                      </h4>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-blue-300/70 text-[14px]">No recent news available.</p>
+              )}
             </div>
           </div>
         </aside>
 
       </div>
+
+      <NewsletterForm />
     </div>
   );
 }

@@ -14,6 +14,7 @@ import SecuritySection from '@/components/sections/SecuritySection';
 import AppScreenshotsSection from '@/components/sections/AppScreenshotsSection';
 import ReadyToUnlockSection from '@/components/sections/ReadyToUnlockSection';
 import DownloadAppSection from '@/components/sections/DownloadAppSection';
+import LiveCurrencyModal from '@/components/modals/LiveCurrencyModal';
 
 export default function Home() {
   const heroSlides = [
@@ -36,6 +37,7 @@ export default function Home() {
       <AppScreenshotsSection />
       <ReadyToUnlockSection />
       <DownloadAppSection />
+      <LiveCurrencyModal />
     </div>
   );
 }

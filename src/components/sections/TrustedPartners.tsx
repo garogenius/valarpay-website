@@ -39,16 +39,16 @@ export default function TrustedPartners() {
         ))}
       </div>
 
-      {/* Mobile/Tablet Layout - flex wrap center */}
-      <div className="flex lg:hidden w-full max-w-3xl mx-auto px-4 items-center justify-center flex-wrap gap-x-6 gap-y-8">
+      {/* Mobile/Tablet Layout - grid center */}
+      <div className="grid lg:hidden grid-cols-3 md:grid-cols-4 w-full max-w-3xl mx-auto px-4 gap-x-4 gap-y-10">
         {partners.map((partner) => (
-          <div key={partner.name} className="relative flex items-center justify-center h-7 sm:h-8">
+          <div key={partner.name} className="relative flex items-center justify-center w-full h-8 sm:h-10">
             <Image
               src={partner.src}
               alt={partner.name}
               width={100}
-              height={32}
-              className="object-contain w-auto h-full"
+              height={40}
+              className="object-contain w-auto h-full max-w-[100px]"
             />
           </div>
         ))}

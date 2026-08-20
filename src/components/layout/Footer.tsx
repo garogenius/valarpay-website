@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-white text-black flex flex-col items-center">
+    <footer className="w-full bg-[#0C1998] text-white flex flex-col items-center">
       
       {/* Top Orange Partner Bar */}
       <div className="w-[350px] md:w-[1087px] bg-[#FF6600] rounded-[20px] md:rounded-[24px] mx-auto mt-12 md:mt-20 px-[12px] py-[19px] md:px-[52px] md:py-[36px] flex flex-wrap justify-center md:flex-nowrap items-center gap-[7px] md:gap-[14px]">
@@ -33,13 +33,13 @@ export default function Footer() {
         {/* Brand & Description (Column 1) */}
         <div className="flex flex-col items-center md:items-start gap-[16px] w-full md:w-[447px]">
           {/* Logo Group */}
-          <div className="flex items-center">
-            <div className="relative w-[200px] h-[55px] md:w-[260px] md:h-[65px] flex items-center justify-center">
-              <Image src="/images/logo-black.png" alt="ValarPay Logo" fill className="object-contain" />
+          <Link href="/" className="flex items-center -ml-3 md:ml-0">
+            <div className="relative w-[130px] h-[40px] md:w-[260px] md:h-[65px] flex items-center justify-start md:justify-center">
+              <Image src="/images/logo.png" alt="ValarPay Logo" fill className="object-contain" priority />
             </div>
-          </div>
+          </Link>
           
-          <p className="font-poppins text-[14px] leading-[19px] text-black text-justify md:text-left">
+          <p className="font-poppins text-[14px] leading-[19px] text-white text-justify md:text-left">
             ValarPay is more than just a financial service provider; we are a community dedicated to improving financial well-being. Join thousands of satisfied users who trust ValarPay for their financial needs. Download the ValarPay app today and experience the future of finance in Nigeria.
           </p>
 
@@ -54,8 +54,8 @@ export default function Footer() {
           
           {/* Company */}
           <div className="flex flex-col items-start gap-[9px] w-[123px]">
-            <h4 className="font-poppins font-bold text-[12px] leading-[24px] text-black">Company</h4>
-            <div className="flex flex-col gap-1 font-poppins text-[12px] leading-[23px] text-black">
+            <h4 className="font-poppins font-bold text-[12px] leading-[24px] text-white">Company</h4>
+            <div className="flex flex-col gap-1 font-poppins text-[12px] leading-[23px] text-white/90">
               <Link href="/about" className="hover:text-[#FF6600] transition-colors">About Us</Link>
               <Link href="/business" className="hover:text-[#FF6600] transition-colors">Business Account</Link>
               <Link href="/careers" className="hover:text-[#FF6600] transition-colors">Join Our Team</Link>
@@ -67,8 +67,8 @@ export default function Footer() {
 
           {/* Resources */}
           <div className="flex flex-col items-start gap-[9px] w-[154px]">
-            <h4 className="font-poppins font-bold text-[12px] leading-[30px] text-black">Resources</h4>
-            <div className="flex flex-col gap-1 font-poppins text-[12px] leading-[23px] text-black">
+            <h4 className="font-poppins font-bold text-[12px] leading-[30px] text-white">Resources</h4>
+            <div className="flex flex-col gap-1 font-poppins text-[12px] leading-[23px] text-white/90">
               <Link href="/terms-of-use" className="hover:text-[#FF6600] transition-colors">Terms of Use</Link>
               <Link href="/terms-and-conditions" className="hover:text-[#FF6600] transition-colors">Terms & Condition</Link>
               <Link href="/privacy-policy" className="hover:text-[#FF6600] transition-colors">Privacy Policy</Link>
@@ -82,8 +82,8 @@ export default function Footer() {
 
           {/* Info */}
           <div className="flex flex-col items-start gap-[12px] w-[296px]">
-            <h4 className="font-poppins font-bold text-[12px] leading-[32px] text-black">Info</h4>
-            <div className="font-poppins text-[12px] leading-[23px] text-black flex flex-col">
+            <h4 className="font-poppins font-bold text-[12px] leading-[32px] text-white">Info</h4>
+            <div className="font-poppins text-[12px] leading-[23px] text-white/90 flex flex-col">
               <span>Head office: 23, OGAGIFO STREET OFF DBS ROAD BEFORE GQ SUITES , ASABA, DELTA STATE</span>
               <span>02013309609</span>
               <span>support@valarpay.com</span>
@@ -97,7 +97,7 @@ export default function Footer() {
       <div className="w-full max-w-[1440px] px-[24px] md:px-[60px] mt-12 md:mt-20 mb-8 md:mb-12">
         <div className="w-full h-[1px] bg-[#C8C8C8] md:border-t md:border-[rgba(82,81,81,0.53)] md:bg-transparent"></div>
         <div className="flex flex-col md:flex-row items-center justify-center md:justify-center pt-[23px] md:pt-[8px] gap-[23px] md:gap-[3px]">
-          <span className="font-poppins text-[14px] leading-[21px] text-black">
+          <span className="font-poppins text-[14px] leading-[21px] text-white">
             © 2026 ValarPay • All Rights Reserved
           </span>
           {/* Mobile Socials */}

@@ -4,7 +4,7 @@ import Image from 'next/image';
 const features = [
   {
     title: 'Personal account',
-    description: 'Open a personal account with ValarPay to manage your',
+    description: 'Open a personal account with ValarPay to manage your finances',
     image: '/images/services/personal.png',
   },
   {
@@ -13,9 +13,15 @@ const features = [
     image: '/images/services/business.png',
   },
   {
-    title: 'Loan',
-    description: 'ValarPay offers a range of loan options to help you achieve your goals. Whether you need a',
-    image: '/images/services/loan.png',
+    title: 'Investments',
+    description: 'Grow your wealth with our flexible and secure investment plans tailored for your goals.',
+    image: '/images/services/investments.png',
+  },
+  {
+    title: 'Multicurrency account',
+    description: 'Manage and spend your money globally in multiple currencies seamlessly.',
+    image: '/images/services/multicurrency.png',
+    mobileOnly: true,
   },
 ];
 
@@ -42,7 +48,7 @@ export default function GrowthSection() {
         {/* Cards Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-16 md:gap-x-6 md:gap-y-20 lg:gap-8 pt-4 md:pt-8">
           {features.map((feature, index) => (
-            <div key={index} className="bg-white rounded-[16px] md:rounded-[24px] p-4 md:p-8 flex flex-col items-start relative mt-8 md:mt-12 lg:mt-16">
+            <div key={index} className={`bg-white rounded-[16px] md:rounded-[24px] p-4 md:p-8 flex-col items-start relative mt-8 md:mt-12 lg:mt-16 ${feature.mobileOnly ? 'flex md:hidden' : 'flex'}`}>
               
               {/* Overlapping Image Container */}
               <div className="absolute top-[-40px] md:top-[-60px] left-4 md:left-8 w-[80px] h-[80px] md:w-[120px] md:h-[120px] lg:w-[140px] lg:h-[140px] rounded-[16px] md:rounded-[24px] border-4 border-[#0033A0] overflow-hidden bg-white z-10 shadow-lg">

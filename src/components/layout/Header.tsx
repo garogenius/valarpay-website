@@ -154,19 +154,23 @@ export default function Header() {
         <div className="fixed inset-0 bg-white z-[100] flex flex-col animate-in fade-in slide-in-from-top-4 duration-300">
           
           {/* Header Inside Mobile Menu */}
-          <div className="w-full h-[60px] flex items-center justify-between px-[20px] border-b border-gray-100/50 pt-2 pb-2 mt-2">
-            <div className="relative w-[140px] h-[40px] flex items-center">
-               <Image src="/images/logo-black.png" alt="ValarPay Logo" fill className="object-contain" priority />
+          <div className="w-full h-[52px] bg-[#FF6600] shadow-[0px_4px_50px_rgba(0,0,0,0.05)] flex items-center justify-between px-[10px]">
+            <div className="flex items-center -ml-3">
+              <div className="relative w-[130px] h-[40px] flex items-center justify-start">
+                 <Image src="/images/logo.png" alt="ValarPay Logo" fill className="object-contain" priority />
+              </div>
             </div>
-            <button 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="text-gray-300 hover:text-gray-500 transition-colors p-2"
-              aria-label="Close menu"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+            <div className="flex items-center">
+              <button 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="text-white p-1"
+                aria-label="Close menu"
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Navigation Links */}

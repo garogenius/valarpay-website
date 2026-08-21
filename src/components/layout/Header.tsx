@@ -52,8 +52,8 @@ function CurrencyDropdown({ isMobile = false }: { isMobile?: boolean }) {
                   <Image src={`https://flagcdn.com/w40/${c.flag}.png`} alt={c.code} fill className="object-cover" unoptimized />
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className={`text-[12px] leading-[14px] font-poppins ${isActive ? 'text-[#FF6600]' : 'text-[#4A4A4A]'}`}>{c.name}</span>
-                  <span className={`text-[13px] leading-[15px] mt-[2px] font-poppins font-bold ${isActive ? 'text-[#FF6600]' : 'text-black'}`}>{c.code}</span>
+                  <span className={`text-[13px] leading-[15px] font-poppins font-bold ${isActive ? 'text-[#FF6600]' : 'text-black'}`}>{c.code}</span>
+                  <span className={`text-[12px] leading-[14px] mt-[2px] font-poppins ${isActive ? 'text-[#FF6600]' : 'text-[#4A4A4A]'}`}>{c.name}</span>
                 </div>
               </Link>
             );
@@ -79,10 +79,11 @@ export default function Header() {
         <div className="w-full h-full px-[10px] md:px-[24px] flex items-center justify-between">
         
         {/* Logo Group */}
-        <Link href="/" className="flex items-center -ml-3 md:ml-0">
-          <div className="relative w-[130px] h-[40px] md:w-[260px] md:h-[65px] flex items-center justify-start md:justify-center">
-            <Image src="/images/logo.png" alt="ValarPay Logo" fill className="object-contain" priority />
+        <Link href="/" className="flex items-center gap-0 -ml-3 md:ml-0 pl-3 md:pl-0">
+          <div className="relative w-[38px] h-[38px] md:w-[54px] md:h-[54px] flex items-center justify-center">
+            <Image src="/images/v-logo.png" alt="ValarPay Icon" fill className="object-contain" priority />
           </div>
+          <span className="font-poppins font-bold text-white text-[20px] md:text-[26px] tracking-tight -ml-1 md:-ml-2">ValarPay</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -155,10 +156,11 @@ export default function Header() {
           
           {/* Header Inside Mobile Menu */}
           <div className="w-full h-[52px] bg-[#FF6600] shadow-[0px_4px_50px_rgba(0,0,0,0.05)] flex items-center justify-between px-[10px]">
-            <div className="flex items-center -ml-3">
-              <div className="relative w-[130px] h-[40px] flex items-center justify-start">
-                 <Image src="/images/logo.png" alt="ValarPay Logo" fill className="object-contain" priority />
+            <div className="flex items-center gap-0 -ml-3 pl-3">
+              <div className="relative w-[38px] h-[38px] flex items-center justify-center">
+                 <Image src="/images/v-logo.png" alt="ValarPay Icon" fill className="object-contain" priority />
               </div>
+              <span className="font-poppins font-bold text-white text-[20px] tracking-tight -ml-1">ValarPay</span>
             </div>
             <div className="flex items-center">
               <button 

@@ -31,12 +31,13 @@ export default function Footer() {
       <div className="w-full max-w-[1440px] px-[24px] md:px-[60px] mt-12 md:mt-20 flex flex-col md:flex-row items-center md:items-start justify-between gap-[48px] md:gap-[86px]">
         
         {/* Brand & Description (Column 1) */}
-        <div className="flex flex-col items-center md:items-start gap-[16px] w-full md:w-[447px]">
+        <div className="flex flex-col items-center md:items-start gap-[4px] md:gap-[8px] w-full md:w-[447px]">
           {/* Logo Group */}
-          <Link href="/" className="flex items-center -ml-3 md:ml-0">
-            <div className="relative w-[130px] h-[40px] md:w-[260px] md:h-[65px] flex items-center justify-start md:justify-center">
-              <Image src="/images/logo.png" alt="ValarPay Logo" fill className="object-contain" priority />
+          <Link href="/" className="flex items-center gap-0 -ml-3 md:ml-0 pl-3 md:pl-0">
+            <div className="relative w-[38px] h-[38px] md:w-[54px] md:h-[54px] flex items-center justify-center">
+              <Image src="/images/v-logo.png" alt="ValarPay Icon" fill className="object-contain" priority />
             </div>
+            <span className="font-poppins font-bold text-white text-[20px] md:text-[26px] tracking-tight -ml-1 md:-ml-2">ValarPay</span>
           </Link>
           
           <p className="font-poppins text-[14px] leading-[19px] text-white text-justify md:text-left">
@@ -53,8 +54,8 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-start gap-[31px] md:gap-[86px] w-full md:w-auto">
           
           {/* Company */}
-          <div className="flex flex-col items-start gap-[9px] w-[123px]">
-            <h4 className="font-poppins font-bold text-[12px] leading-[24px] text-white">Company</h4>
+          <div className="flex flex-col items-start gap-[4px] w-[123px]">
+            <h4 className="font-poppins font-bold text-[12px] leading-[24px] text-[#FF6600]">Company</h4>
             <div className="flex flex-col gap-1 font-poppins text-[12px] leading-[23px] text-white/90">
               <Link href="/about" className="hover:text-[#FF6600] transition-colors">About Us</Link>
               <Link href="/business" className="hover:text-[#FF6600] transition-colors">Business Account</Link>
@@ -66,8 +67,8 @@ export default function Footer() {
           </div>
 
           {/* Resources */}
-          <div className="flex flex-col items-start gap-[9px] w-[154px]">
-            <h4 className="font-poppins font-bold text-[12px] leading-[30px] text-white">Resources</h4>
+          <div className="flex flex-col items-start gap-[4px] w-[154px]">
+            <h4 className="font-poppins font-bold text-[12px] leading-[30px] text-[#FF6600]">Resources</h4>
             <div className="flex flex-col gap-1 font-poppins text-[12px] leading-[23px] text-white/90">
               <Link href="/terms-of-use" className="hover:text-[#FF6600] transition-colors">Terms of Use</Link>
               <Link href="/terms-and-conditions" className="hover:text-[#FF6600] transition-colors">Terms & Condition</Link>
@@ -81,8 +82,8 @@ export default function Footer() {
           </div>
 
           {/* Info */}
-          <div className="flex flex-col items-start gap-[12px] w-[296px]">
-            <h4 className="font-poppins font-bold text-[12px] leading-[32px] text-white">Info</h4>
+          <div className="flex flex-col items-start gap-[4px] w-[296px]">
+            <h4 className="font-poppins font-bold text-[12px] leading-[32px] text-[#FF6600]">Info</h4>
             <div className="font-poppins text-[12px] leading-[23px] text-white/90 flex flex-col">
               <span>Head office: 23, OGAGIFO STREET OFF DBS ROAD BEFORE GQ SUITES , ASABA, DELTA STATE</span>
               <span>02013309609</span>

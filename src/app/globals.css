@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import "tailwindcss";
 
 :root {
@@ -23,4 +24,225 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+=======
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+    -webkit-text-fill-color: inherit !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hide the arrows in WebKit browsers */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide the arrows in Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Dark mode styles for autofill */
+@media (prefers-color-scheme: dark) {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: white !important;
+  }
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Autocomplete styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #4B5563 !important;
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+  background-color: transparent !important;
+}
+
+/* Dark mode autocomplete */
+[data-theme="dark"] input:-webkit-autofill,
+[data-theme="dark"] input:-webkit-autofill:hover,
+[data-theme="dark"] input:-webkit-autofill:focus,
+[data-theme="dark"] input:-webkit-autofill:active {
+  -webkit-text-fill-color: #9CA3AF !important;
+}
+
+/* Light mode autocomplete */
+[data-theme="light"] input:-webkit-autofill,
+[data-theme="light"] input:-webkit-autofill:hover,
+[data-theme="light"] input:-webkit-autofill:focus,
+[data-theme="light"] input:-webkit-autofill:active {
+  -webkit-text-fill-color: #4B5563 !important;
+}
+
+/* React DatePicker Custom Styles */
+.react-datepicker {
+  background-color: #0A0A0A !important;
+  border: none !important;
+  font-family: inherit !important;
+}
+
+.react-datepicker__header {
+  background-color: #0A0A0A !important;
+  border-bottom: 1px solid #374151 !important;
+  padding-top: 0.5rem !important;
+}
+
+.react-datepicker__current-month {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+}
+
+.react-datepicker__day-name {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+}
+
+.react-datepicker__day {
+  color: #ffffff !important;
+  font-size: 0.875rem !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-radius: 0.375rem !important;
+}
+
+.react-datepicker__day--selected {
+  background-color: #FF6B2C !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  border-radius: 0.375rem !important;
+}
+
+.react-datepicker__day--selected:hover {
+  background-color: #FF7A3D !important;
+  color: #000000 !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: rgba(255, 107, 44, 0.2) !important;
+  color: #ffffff !important;
+  border-radius: 0.375rem !important;
+}
+
+.react-datepicker__day--disabled {
+  color: #6B7280 !important;
+  cursor: not-allowed !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: #6B7280 !important;
+}
+
+.react-datepicker__month {
+  margin: 0.5rem 0 !important;
+}
+
+.react-datepicker__month-text {
+  color: #ffffff !important;
+}
+
+.react-datepicker__month-text:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.react-datepicker__month-text--selected {
+  background-color: #FF6B2C !important;
+  color: #000000 !important;
+}
+
+.react-datepicker__year {
+  color: #ffffff !important;
+}
+
+.react-datepicker__year-text {
+  color: #ffffff !important;
+}
+
+.react-datepicker__year-text:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.react-datepicker__year-text--selected {
+  background-color: #FF6B2C !important;
+  color: #000000 !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .react-datepicker {
+    width: 100% !important;
+  }
+  
+  .react-datepicker__month-container {
+    width: 100% !important;
+  }
+  
+  .react-datepicker__day {
+    width: 2rem !important;
+    height: 2rem !important;
+    line-height: 2rem !important;
+    margin: 0.125rem !important;
+  }
+  
+  .react-datepicker__day-name {
+    width: 2rem !important;
+    margin: 0.125rem !important;
+  }
+}
+
+/* Hide small floating loaders in top-right/bottom-right corners */
+div[class*="fixed"][class*="right"]:has(svg[class*="animate-spin"]),
+div[class*="fixed"][class*="right"]:has([class*="loader"]),
+button[class*="fixed"][class*="right"]:has(svg[class*="animate-spin"]),
+#nprogress .spinner,
+.nprogress-custom-parent .spinner {
+  display: none !important;
+>>>>>>> prod/master
 }

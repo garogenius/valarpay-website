@@ -1,0 +1,389 @@
+"use client";
+
+import React from "react";
+import { FiPlus, FiEye, FiEyeOff, FiChevronRight, FiArrowUp, FiArrowDown } from "react-icons/fi";
+import { LuWallet } from "react-icons/lu";
+import { useGetCurrencyAccounts } from "@/api/currency/currency.queries";
+import { getCurrencyIconByString } from "@/utils/utilityFunctions";
+import Image from "next/image";
+import MultiCurrencyAccountDetails from "./MultiCurrencyAccountDetails";
+import CreateCurrencyAccountModal from "@/components/modals/CreateCurrencyAccountModal";
+import CreatePayoutModal from "@/components/modals/currency/CreatePayoutModal";
+import BillsHubModal from "@/components/modals/bills/BillsHubModal";
+import { useGetCurrencyAccountPayoutDestinations } from "@/api/currency/currency.queries";
+import images from "../../../../public/images";
+
+const MultiCurrencyContent: React.FC = () => {
+  const [selectedCurrency, setSelectedCurrency] = React.useState<"USD" | "EUR" | "GBP" | null>(null);
+  const [openCreate, setOpenCreate] = React.useState(false);
+  const [balanceVisible, setBalanceVisible] = React.useState<Record<string, boolean>>({});
+  const [openPayout, setOpenPayout] = React.useState(false);
+  const [openConversion, setOpenConversion] = React.useState(false);
+  const [selectedAccount, setSelectedAccount] = React.useState<any>(null);
+
+  const { accounts, isPending, refetch } = useGetCurrencyAccounts();
+
+  const accountsList = Array.isArray(accounts) ? accounts : [];
+  const currencyAccounts = accountsList.filter((acc: any) =>
+    acc?.currency && ["USD", "EUR", "GBP"].includes(String(acc.currency).toUpperCase())
+  );
+
+  const { destinations } = useGetCurrencyAccountPayoutDestinations(selectedCurrency || "USD");
+
+  React.useEffect(() => {
+    if (currencyAccounts.length > 0 && !selectedCurrency) {
+      const firstCurrency = String(currencyAccounts[0].currency).toUpperCase() as "USD" | "EUR" | "GBP";
+      setSelectedCurrency(firstCurrency);
+    }
+  }, [currencyAccounts, selectedCurrency]);
+
+  const handleCreateSuccess = () => {
+    setOpenCreate(false);
+    refetch();
+  };
+
+  const formatBalance = (balance: number | undefined, currency: string) => {
+    if (balance === undefined || balance === null) return "0.00";
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(balance);
+  };
+
+  const getCurrencySymbol = (currency: string) => {
+    switch (currency.toUpperCase()) {
+      case "USD":
+        return "$";
+      case "EUR":
+        return "€";
+      case "GBP":
+        return "£";
+      default:
+        return currency.toUpperCase();
+    }
+  };
+
+  const toggleBalanceVisibility = (currency: string) => {
+    setBalanceVisible((prev) => ({
+      ...prev,
+      [currency]: !prev[currency],
+    }));
+  };
+
+  return (
+    <div className="flex flex-col gap-6 pb-10">
+      {/* Header */}
+      <div className="w-full flex flex-row items-center gap-2 sm:gap-3 justify-between">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-base sm:text-xl lg:text-2xl font-semibold text-white truncate">Multi-Currency</h1>
+          <p className="text-white/60 text-[10px] sm:text-xs lg:text-sm mt-0.5 sm:mt-1 line-clamp-1">Manage your USD, EUR, and GBP accounts</p>
+        </div>
+        <button
+          onClick={() => setOpenCreate(true)}
+          className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 bg-[#FF6B2C] hover:bg-[#FF7A3D] text-black px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl text-[10px] sm:text-sm font-medium transition-colors whitespace-nowrap"
+        >
+          <FiPlus className="text-xs sm:text-base" />
+          <span className="hidden xs:inline sm:hidden">Create</span>
+          <span className="hidden sm:inline">Create Account</span>
+          <span className="xs:hidden">+</span>
+        </button>
+      </div>
+
+      {/* Account Cards Grid - Swipeable on mobile */}
+      <div className="relative">
+        {/* Mobile: Swipeable slider */}
+        <div className="sm:hidden overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth -mx-3 px-3 pb-2">
+          <div className="flex gap-3 w-full">
+            {isPending ? (
+              [...Array(3)].map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-bg-600 dark:bg-bg-1100 rounded-xl px-4 py-5 2xs:py-6 flex flex-col gap-3 sm:gap-4 animate-pulse snap-center w-full flex-shrink-0"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded bg-white/10" />
+                    <div className="h-4 w-24 bg-white/10 rounded" />
+                  </div>
+                  <div className="h-3 w-20 bg-white/10 rounded" />
+                  <div className="h-8 w-32 bg-white/10 rounded" />
+                </div>
+              ))
+            ) : (
+              <>
+                {currencyAccounts.map((account: any, index: number) => {
+                  const currency = String(account.currency).toUpperCase() as "USD" | "EUR" | "GBP";
+                  const isActive = selectedCurrency === currency;
+                  const balance = account.balance || 0;
+                  const isVisible = balanceVisible[currency] !== false;
+
+                  return (
+                    <div
+                      key={account.id || account.currency}
+                      onClick={() => setSelectedCurrency(currency)}
+                      className={`rounded-[2.5rem] p-6 2xs:p-8 flex flex-col cursor-pointer transition-all snap-center w-full flex-shrink-0 relative overflow-hidden min-h-[220px] shadow-xl ${isActive ? "bg-[#FF6B2C] text-black" : "bg-bg-600 dark:bg-bg-1100"
+                        }`}
+                    >
+                      {/* Top Bar */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isActive ? "bg-black/10" : "bg-white/10"}`}>
+                            <LuWallet className={`text-xl ${isActive ? "text-black" : "text-text-200 dark:text-text-800"}`} />
+                          </div>
+                          <span className={`text-sm font-medium ${isActive ? "text-black/80" : "text-text-200 dark:text-text-800"}`}>
+                            Main Balance
+                          </span>
+                        </div>
+                        <div className={`flex items-center gap-1 text-sm font-medium ${isActive ? "text-black/80" : "text-primary"}`}>
+                          <span>Transaction History</span>
+                          <FiChevronRight className="text-lg" />
+                        </div>
+                      </div>
+
+                      {/* Middle Section: Balance + Actions */}
+                      <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-3">
+                          <h2 className="text-4xl 2xs:text-5xl font-bold tracking-tight">
+                            {isVisible
+                              ? `${getCurrencySymbol(currency)}${formatBalance(balance, currency)}`
+                              : "••••••"}
+                          </h2>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleBalanceVisibility(currency);
+                            }}
+                            className={`p-2 rounded-full hover:bg-black/5 transition-colors ${isActive ? "text-black" : "text-text-200 dark:text-text-800"}`}
+                          >
+                            {isVisible ? <FiEyeOff className="text-xl" /> : <FiEye className="text-xl" />}
+                          </button>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAccount(account);
+                            setOpenPayout(true);
+                          }}
+                          className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isActive ? "bg-black text-white hover:bg-black/80" : "bg-primary text-black"}`}
+                        >
+                          <FiPlus className="text-2xl" />
+                        </button>
+                      </div>
+
+                      {/* Divider */}
+                      <div className={`h-[1px] w-full mb-6 ${isActive ? "bg-black/10" : "bg-white/10"}`} />
+
+                      {/* Bottom Section: Rates + Conversion */}
+                      <div className="flex items-center justify-between mt-auto">
+                        <div className="space-y-1">
+                          <div className={`text-sm font-medium ${isActive ? "text-black" : "text-text-200 dark:text-text-800"}`}>
+                            {currency === "GBP" ? "GBP - NGN" : currency === "EUR" ? "EUR - NGN" : "USD - NGN"} = $1.580
+                          </div>
+                          <div className="flex items-center gap-1 text-[10px] font-bold text-green-700">
+                            <FiArrowUp className="text-xs" />
+                            <span>0.34% today</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenConversion(true);
+                          }}
+                          className={`px-6 py-2.5 rounded-full text-sm font-bold uppercase transition-transform hover:scale-105 ${isActive ? "bg-black text-white" : "bg-white/10 text-white"}`}
+                        >
+                          {currency} Conversion
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Create Account Card (if less than 3 accounts) */}
+                {currencyAccounts.length < 3 && (
+                  <div
+                    onClick={() => setOpenCreate(true)}
+                    className="bg-bg-600 dark:bg-bg-1100 rounded-xl px-4 py-5 2xs:py-6 flex flex-col items-center justify-center gap-3 sm:gap-4 cursor-pointer border-2 border-dashed border-white/20 hover:border-white/40 hover:bg-white/5 transition-all min-h-[140px] snap-center w-full flex-shrink-0"
+                  >
+                    <div className="w-8 h-8 rounded-md bg-secondary/15 grid place-items-center text-secondary">
+                      <FiPlus className="text-lg" />
+                    </div>
+                    <div className="flex flex-col items-center gap-1 text-center">
+                      <p className="text-text-200 dark:text-text-800 text-sm sm:text-base font-semibold">Create Account</p>
+                      <p className="text-text-200 dark:text-text-400 text-xs">USD, EUR, or GBP</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          {/* Pagination Dots */}
+          <div className="flex justify-center gap-2 mt-6 sm:hidden">
+            {currencyAccounts.map((account: any, i) => (
+              <div
+                key={i}
+                onClick={() => setSelectedCurrency(String(account.currency).toUpperCase() as any)}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${selectedCurrency === String(account.currency).toUpperCase()
+                  ? "bg-[#FF6B2C] w-8"
+                  : "bg-white/20 w-2"
+                  }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop: Grid layout */}
+        <div className="hidden sm:grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+          {isPending ? (
+            // Show skeleton cards while loading
+            [...Array(3)].map((_, index) => (
+              <div
+                key={index}
+                className="bg-bg-600 dark:bg-bg-1100 rounded-xl px-4 py-5 2xs:py-6 flex flex-col gap-3 sm:gap-4 animate-pulse"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded bg-white/10" />
+                  <div className="h-4 w-24 bg-white/10 rounded" />
+                </div>
+                <div className="h-3 w-20 bg-white/10 rounded" />
+                <div className="h-8 w-32 bg-white/10 rounded" />
+              </div>
+            ))
+          ) : (
+            <>
+              {currencyAccounts.map((account: any) => {
+                const currency = String(account.currency).toUpperCase() as "USD" | "EUR" | "GBP";
+                const isActive = selectedCurrency === currency;
+                const balance = account.balance || 0;
+                const isVisible = balanceVisible[currency] !== false;
+
+                return (
+                  <div
+                    key={account.id || account.currency}
+                    onClick={() => setSelectedCurrency(currency)}
+                    className={`bg-bg-600 dark:bg-bg-1100 rounded-xl px-4 py-5 2xs:py-6 flex flex-col gap-3 sm:gap-4 cursor-pointer transition-all ${isActive ? "ring-2 ring-[#FF6B2C]" : ""
+                      }`}
+                  >
+                    {/* Header: currency icon + account label */}
+                    <div className="flex items-center gap-2 text-text-200 dark:text-text-800">
+                      <Image
+                        src={getCurrencyIconByString(currency.toLowerCase()) || ""}
+                        alt={currency}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8"
+                      />
+                      <p className="text-sm sm:text-base font-semibold uppercase flex-1">
+                        {account.accountName || account.label || `${currency} Account`}
+                      </p>
+                    </div>
+
+                    {/* Subtitle + eye toggle */}
+                    <div className="flex items-center gap-2 font-semibold">
+                      <p className="text-text-200 dark:text-text-800 text-xs sm:text-sm">
+                        {currency} Balance
+                      </p>
+                      {isVisible ? (
+                        <FiEyeOff
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleBalanceVisibility(currency);
+                          }}
+                          className="cursor-pointer text-text-200 dark:text-text-800 text-base"
+                        />
+                      ) : (
+                        <FiEye
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleBalanceVisibility(currency);
+                          }}
+                          className="cursor-pointer text-text-200 dark:text-text-800 text-base"
+                        />
+                      )}
+                    </div>
+
+                    {/* Amount */}
+                    <p className="text-text-400 text-2xl sm:text-3xl font-semibold">
+                      {isVisible
+                        ? `${getCurrencySymbol(currency)} ${formatBalance(balance, currency)}`
+                        : "---"}
+                    </p>
+                  </div>
+                );
+              })}
+
+              {/* Create Account Card (if less than 3 accounts) */}
+              {currencyAccounts.length < 3 && (
+                <div
+                  onClick={() => setOpenCreate(true)}
+                  className="bg-bg-600 dark:bg-bg-1100 rounded-xl px-4 py-5 2xs:py-6 flex flex-col items-center justify-center gap-3 sm:gap-4 cursor-pointer border-2 border-dashed border-white/20 hover:border-white/40 hover:bg-white/5 transition-all min-h-[140px]"
+                >
+                  <div className="w-8 h-8 rounded-md bg-secondary/15 grid place-items-center text-secondary">
+                    <FiPlus className="text-lg" />
+                  </div>
+                  <div className="flex flex-col items-center gap-1 text-center">
+                    <p className="text-text-200 dark:text-text-800 text-sm sm:text-base font-semibold">Create Account</p>
+                    <p className="text-text-200 dark:text-text-400 text-xs">USD, EUR, or GBP</p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Account Details Section */}
+      {selectedCurrency ? (
+        <MultiCurrencyAccountDetails currency={selectedCurrency} onRefetch={refetch} />
+      ) : currencyAccounts.length === 0 ? (
+        <div className="rounded-2xl bg-bg-600 dark:bg-bg-1100 border border-white/10 p-8 sm:p-12 flex flex-col items-center justify-center gap-4">
+          <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center border-4 border-white/10">
+            <FiPlus className="text-4xl text-white/40" />
+          </div>
+          <div className="text-center">
+            <p className="text-white text-base sm:text-lg mb-2">No multi-currency accounts yet</p>
+            <p className="text-white/60 text-sm mb-4">Create your first USD, EUR, or GBP account to get started</p>
+            <button
+              onClick={() => setOpenCreate(true)}
+              className="bg-[#FF6B2C] hover:bg-[#FF7A3D] text-black px-6 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            >
+              Create Account
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Create Account Modal */}
+      <CreateCurrencyAccountModal
+        isOpen={openCreate}
+        onClose={() => setOpenCreate(false)}
+        onSuccess={handleCreateSuccess}
+      />
+
+      {/* Payout Modal */}
+      {selectedAccount && (
+        <CreatePayoutModal
+          isOpen={openPayout}
+          onClose={() => {
+            setOpenPayout(false);
+            setSelectedAccount(null);
+          }}
+          account={selectedAccount}
+          destinations={destinations || []}
+          onSuccess={() => {
+            setOpenPayout(false);
+            refetch();
+          }}
+        />
+      )}
+
+      {/* Conversion Modal */}
+      <BillsHubModal
+        isOpen={openConversion}
+        onClose={() => setOpenConversion(false)}
+        initialBill="convert"
+      />
+    </div>
+  );
+};
+
+export default MultiCurrencyContent;
+

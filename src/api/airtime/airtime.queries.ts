@@ -1,0 +1,102 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  airtimeNetworkProviderRequest,
+  airtimePaymentRequest,
+  airtimePlanRequest,
+  airtimeVariationRequest,
+  internationalAirtimePaymentRequest,
+  internationalAirtimeFxRateRequest,
+  internationalAirtimePlanRequest,
+} from "./airtime.apis";
+import {
+  IAirtimePlan,
+  IAirtimeVariation,
+  IInternationalAirtimeFxRate,
+  IInternationalAirtimePlan,
+} from "./airtime.types";
+
+const validatePhone = (phone: string, currency: string) => {
+  if (phone.length === 11 && currency === "NGN") {
+    return true;
+  }
+  return false;
+};
+
+export const useGetAirtimePlan = (payload: IAirtimePlan) => {
+  return useQuery({
+    queryKey: ["airtime-plan", payload.phone],
+    queryFn: () => airtimePlanRequest(payload),
+    enabled: validatePhone(payload.phone, payload.currency),
+  });
+};
+
+export const useGetInternationalAirtimePlan = (
+  payload: IInternationalAirtimePlan
+) => {
+  // Only enable query if phone number is valid (at least 7 characters)
+  const isValidPhone = !!(payload.phone && payload.phone.length >= 7);
+  return useQuery({
+    queryKey: ["international-airtime-plan", payload],
+    queryFn: () => internationalAirtimePlanRequest(payload),
+    enabled: isValidPhone,
+    staleTime: 30000, // Cache for 30 seconds to prevent excessive calls
+  });
+};
+
+export const useGetInternationalAirtimeFxRate = (
+  payload: IInternationalAirtimeFxRate
+) => {
+  return useQuery({
+    queryKey: ["international-airtime-fx-rate", payload],
+    queryFn: () => internationalAirtimeFxRateRequest(payload),
+    enabled: !!payload.operatorId && !!payload.amount,
+  });
+};
+
+export const useGetAirtimeVariation = (payload: IAirtimeVariation) => {
+  return useQuery({
+    queryKey: ["airtime-variation"],
+    queryFn: () => airtimeVariationRequest(payload),
+  });
+};
+
+export const usePayForAirtime = (
+  onError: (error: any) => void,
+  onSuccess: (data: any) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: airtimePaymentRequest,
+    onError,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["get-beneficiaries"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      onSuccess(data);
+    },
+  });
+};
+
+export const usePayForInternationalAirtime = (
+  onError: (error: any) => void,
+  onSuccess: (data: any) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: internationalAirtimePaymentRequest,
+    onError,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["get-beneficiaries"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      onSuccess(data);
+    },
+  });
+};
+
+export const useGetAirtimeNetWorkProvider = () => {
+  return useQuery({
+    queryKey: ["airtime-network-provider"],
+    queryFn: airtimeNetworkProviderRequest,
+  });
+};

@@ -2,8 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-<<<<<<< HEAD
-=======
   poweredByHeader: false,
   images: {
     // Allow images from Cloudinary
@@ -50,7 +48,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
->>>>>>> prod/master
 };
 
 export default nextConfig;

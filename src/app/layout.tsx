@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-<<<<<<< HEAD
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -12,42 +11,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-export const metadata: Metadata = {
-  title: "ValarPay",
-  description: "ValarPay - The future of finance in Nigeria.",
-};
-
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import FloatingWidgets from "@/components/FloatingWidgets";
-// import CookieConsentModal from "@/components/modals/CookieConsentModal";
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-white overflow-x-hidden">
-        <Header />
-        <main className="flex-1 w-full relative">{children}</main>
-        <Footer />
-        <FloatingWidgets />
-        {/* <CookieConsentModal /> */}
-=======
-import "./globals.css";
-import { ThemeProvider } from "@/providers/ThemeProvider";
-import CustomTopLoader from "@/components/shared/CustomTopLoader";
-import "react-loading-skeleton/dist/skeleton.css";
-import { Toaster } from "react-hot-toast";
-import ReactQueryProvider from "@/providers/ReactQueryProvider";
-import UserProvider from "@/providers/UserProvider";
-import GlobalModalsProvider from "@/components/shared/GlobalModalsProvider";
-import "react-datepicker/dist/react-datepicker.css";
-// Removed next/font/google due to Turbopack resolution error; using Tailwind's font-sans instead
-
-// Using default Tailwind font stack (font-sans)
 
 export const metadata: Metadata = {
   title: "Valarpay – Smart Payments for Your Business",
@@ -69,15 +32,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" suppressHydrationWarning className="dark" data-mode="dark">
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import FloatingWidgets from "@/components/FloatingWidgets";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import CustomTopLoader from "@/components/shared/CustomTopLoader";
+import "react-loading-skeleton/dist/skeleton.css";
+import { Toaster } from "react-hot-toast";
+import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import UserProvider from "@/providers/UserProvider";
+import GlobalModalsProvider from "@/components/shared/GlobalModalsProvider";
+import "react-datepicker/dist/react-datepicker.css";
 
-      <body className="font-sans">
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col bg-white overflow-x-hidden">
         <ThemeProvider>
           <ReactQueryProvider>
             <UserProvider>
@@ -98,11 +72,13 @@ export default function RootLayout({
                 }}
               />
               <CustomTopLoader />
-              <main className="w-full overflow-hidden">{children}</main>
+              <Header />
+              <main className="flex-1 w-full relative overflow-hidden">{children}</main>
+              <Footer />
+              <FloatingWidgets />
             </UserProvider>
           </ReactQueryProvider>
         </ThemeProvider>
->>>>>>> prod/master
       </body>
     </html>
   );

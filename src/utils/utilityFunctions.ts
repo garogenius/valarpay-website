@@ -200,8 +200,9 @@ export const shortenReference = ({
   return ref;
 };
 
-export const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-  e.target.value = e.target.value.replace(/[^0-9+]/g, "");
+export const handleInput = (e: React.FormEvent<HTMLInputElement> | React.ChangeEvent<HTMLInputElement>) => {
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.replace(/[^0-9+]/g, "");
 };
 
 // Format currency with symbol

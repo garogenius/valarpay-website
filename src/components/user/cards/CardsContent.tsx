@@ -1,0 +1,966 @@
+"use client";
+
+import React from "react";
+import {
+  FiEye,
+  FiLock,
+  FiUnlock,
+  FiCreditCard,
+  FiAlertCircle,
+  FiDollarSign,
+  FiArrowDownLeft,
+  FiArrowUpRight,
+  FiChevronDown,
+} from "react-icons/fi";
+import NextImage from "next/image";
+import useUserStore from "@/store/user.store";
+import CardPreview from "@/components/user/cards/CardPreview";
+import CustomButton from "@/components/shared/Button";
+import ErrorToast from "@/components/toast/ErrorToast";
+import SuccessToast from "@/components/toast/SuccessToast";
+import ChangePinModal from "@/components/modals/ChangePinModal";
+import ResetPinModal from "@/components/modals/ResetPinModal";
+import SpendingLimitModal from "@/components/modals/cards/SpendingLimitModal";
+import BlockCardModal from "@/components/modals/cards/BlockCardModal";
+import CloseCardModal from "@/components/modals/cards/CloseCardModal";
+import FundCardModal from "@/components/modals/cards/FundCardModal";
+import WithdrawCardModal from "@/components/modals/cards/WithdrawCardModal";
+import CardTransactionsModal from "@/components/modals/cards/CardTransactionsModal";
+import ShowCardDetailsModal from "@/components/modals/cards/ShowCardDetailsModal";
+import ConfirmActionModal from "@/components/modals/cards/ConfirmActionModal";
+import ValidationErrorModal from "@/components/modals/ValidationErrorModal";
+import {
+  useCreateCard,
+  useGetCards,
+  useFreezeCard,
+} from "@/api/currency/cards.queries";
+import { useGetCurrencyAccounts, useGetCurrencyAccountByCurrency } from "@/api/currency/currency.queries";
+import type { IVirtualCard, CardCurrency } from "@/api/currency/cards.types";
+import { getCurrencyIconByString } from "@/utils/utilityFunctions";
+import useOnClickOutside from "@/hooks/useOnClickOutside";
+
+type TabKey = "physical" | "virtual";
+
+const CardsContent: React.FC = () => {
+  const { user } = useUserStore();
+  const [tab, setTab] = React.useState<TabKey>("virtual");
+  const [isFrozen, setIsFrozen] = React.useState(false);
+
+  const [openDetails, setOpenDetails] = React.useState(false);
+  const [openChangePin, setOpenChangePin] = React.useState(false);
+  const [openResetPin, setOpenResetPin] = React.useState(false);
+  const [openLimit, setOpenLimit] = React.useState(false);
+  const [openFreeze, setOpenFreeze] = React.useState(false);
+  const [openBlock, setOpenBlock] = React.useState(false);
+  const [openClose, setOpenClose] = React.useState(false);
+  const [openFund, setOpenFund] = React.useState(false);
+  const [openWithdraw, setOpenWithdraw] = React.useState(false);
+  const [openTransactions, setOpenTransactions] = React.useState(false);
+  const [openCreateCard, setOpenCreateCard] = React.useState(false);
+  const [selectedCard, setSelectedCard] = React.useState<IVirtualCard | null>(null);
+  const [cardholderNameInput, setCardholderNameInput] = React.useState("");
+  const [cardPinInput, setCardPinInput] = React.useState("");
+  const [fundingAmount, setFundingAmount] = React.useState<string>("");
+  const [selectedCurrency, setSelectedCurrency] =
+    React.useState<CardCurrency>("USD");
+  const [currencyDropdownOpen, setCurrencyDropdownOpen] = React.useState(false);
+  const [errorModal, setErrorModal] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    descriptions: string[];
+  }>({
+    isOpen: false,
+    title: "",
+    descriptions: [],
+  });
+  const currencyDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useOnClickOutside(currencyDropdownRef, () => setCurrencyDropdownOpen(false));
+
+  // Memoize NGN wallet reference for quick lookups
+  const ngWallet = React.useMemo(
+    () =>
+      user?.wallet?.find(
+        (w) => String(w?.currency || "").toUpperCase().trim() === "NGN"
+      ) ?? null,
+    [user]
+  );
+
+  // Fetch all virtual cards (USD, EUR, GBP, and NGN)
+  const { cards, isPending: cardsLoading, refetch: refetchCards } = useGetCards();
+  const safeCards = Array.isArray(cards) ? cards : [];
+
+  const supportedCardCurrencies: CardCurrency[] = [
+    "USD",
+  ];
+
+  const virtualCards = safeCards.filter((card: IVirtualCard) =>
+    supportedCardCurrencies.includes(
+      (card.currency || "").toUpperCase() as CardCurrency
+    )
+  );
+
+  // Fetch currency accounts to check for account availability
+  const { accounts: currencyAccounts } = useGetCurrencyAccounts();
+
+  const currencyAccountQuery =
+    selectedCurrency === "NGN" ? undefined : selectedCurrency;
+
+  const { account: fetchedCurrencyAccount, isError: accountFetchError } =
+    useGetCurrencyAccountByCurrency(currencyAccountQuery);
+
+  // Check if account exists and is active - check both the list and the fetched account
+  const hasCurrencyAccount = (currency: CardCurrency) => {
+    const normalize = (value?: string) =>
+      String(value || "").toUpperCase().trim();
+
+    if (currency === "NGN") {
+      return ngWallet != null;
+    }
+
+    const accountInList = Array.isArray(currencyAccounts)
+      ? currencyAccounts.find((acc: any) => {
+        if (!acc || !acc.currency) return false;
+        return normalize(acc.currency) === normalize(currency);
+      })
+      : null;
+
+    const hasFetched =
+      currency === selectedCurrency &&
+      fetchedCurrencyAccount &&
+      !accountFetchError &&
+      normalize(fetchedCurrencyAccount.currency) === normalize(currency);
+
+    return !!accountInList || hasFetched;
+  };
+
+  // Get the actual account for the selected currency to check its status
+  const getCurrencyAccount = (currency: CardCurrency) => {
+    const normalize = (value?: string) =>
+      String(value || "").toUpperCase().trim();
+
+    if (currency === "NGN") {
+      if (!ngWallet) return null;
+      return {
+        id: ngWallet.id,
+        currency: "NGN",
+        status: "ACTIVE",
+        accountNumber: ngWallet.accountNumber,
+      };
+    }
+
+    if (
+      currency === selectedCurrency &&
+      fetchedCurrencyAccount &&
+      !accountFetchError &&
+      normalize(fetchedCurrencyAccount.currency) === normalize(currency)
+    ) {
+      return fetchedCurrencyAccount;
+    }
+
+    if (Array.isArray(currencyAccounts)) {
+      const account = currencyAccounts.find((acc: any) => {
+        if (!acc || !acc.currency) return false;
+        return normalize(acc.currency) === normalize(currency);
+      });
+      if (account) return account;
+    }
+
+    return null;
+  };
+
+  const onCreateCardError = (error: any) => {
+    // Extract error message from response
+    const errorData = error?.response?.data;
+    let errorMessage = errorData?.message;
+
+    // Handle array of messages
+    if (Array.isArray(errorMessage)) {
+      errorMessage = errorMessage;
+    } else if (typeof errorMessage === 'string') {
+      errorMessage = [errorMessage];
+    } else if (errorData?.error) {
+      // Some APIs return error in 'error' field
+      errorMessage = [errorData.error];
+    } else if (errorData?.errors) {
+      // Handle validation errors
+      errorMessage = Array.isArray(errorData.errors)
+        ? errorData.errors
+        : [String(errorData.errors)];
+    } else {
+      errorMessage = [error?.message || "Failed to create virtual card"];
+    }
+
+    // Add helpful context for validation errors
+    if (error?.response?.status === 400 && errorMessage.some((msg: string) =>
+      msg.toLowerCase().includes("validate") ||
+      msg.toLowerCase().includes("parameter")
+    )) {
+      const account = getCurrencyAccount(selectedCurrency);
+      const accountInfo = account ? {
+        status: account.status,
+        id: account.id,
+        accountNumber: account.accountNumber,
+      } : null;
+
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Validation error - Account info:', accountInfo);
+      }
+
+      errorMessage = [
+        ...errorMessage,
+        `Your ${selectedCurrency} account ${accountInfo ? `(Status: ${accountInfo.status || 'unknown'})` : ''} may need to be fully activated.`,
+        "Please ensure your account is active and verified.",
+        "If you just created the account, please wait a few moments for it to be fully activated, then try again.",
+        "If the issue persists, please contact support."
+      ];
+    }
+
+    // Log full error for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.group('🔍 onCreateCardError Details');
+      console.log('Error Type:', error?.constructor?.name);
+      console.log('Error Message:', error?.message);
+      console.log('Status:', error?.response?.status);
+      console.log('Status Text:', error?.response?.statusText);
+      console.log('Response Data:', error?.response?.data);
+      console.log('Error Data (extracted):', errorData);
+      console.log('Error Messages (processed):', errorMessage);
+      console.log('Request URL:', error?.config?.baseURL + error?.config?.url);
+      console.log('Request Payload:', error?.config?.data);
+      console.groupEnd();
+    }
+
+    // Show error in modal instead of toast
+    setErrorModal({
+      isOpen: true,
+      title: "Creation Failed",
+      descriptions: errorMessage,
+    });
+  };
+
+  const onCreateCardSuccess = () => {
+    SuccessToast({
+      title: "Card Created Successfully!",
+      description: `Your virtual ${selectedCurrency} card has been created.`,
+    });
+    setOpenCreateCard(false);
+    setCardholderNameInput("");
+    setFundingAmount("");
+    setSelectedCurrency("USD"); // Reset to USD after creation
+    refetchCards();
+  };
+
+  const { mutate: createCard, isPending: creatingCard } = useCreateCard(
+    onCreateCardError,
+    onCreateCardSuccess
+  );
+
+  const onFreezeError = (error: any) => {
+    const errorMessage = error?.response?.data?.message;
+    const descriptions = Array.isArray(errorMessage)
+      ? errorMessage
+      : [errorMessage || "Failed to freeze card"];
+
+    ErrorToast({
+      title: "Action Failed",
+      descriptions,
+    });
+  };
+
+  const onFreezeSuccess = () => {
+    SuccessToast({
+      title: "Card Frozen",
+      description: "Your card has been frozen successfully.",
+    });
+    setOpenFreeze(false);
+    refetchCards();
+  };
+
+  const { mutate: freezeCard } = useFreezeCard(onFreezeError, onFreezeSuccess);
+
+  const handleCreateCard = () => {
+    if (!hasCurrencyAccount(selectedCurrency)) {
+      ErrorToast({
+        title: `${selectedCurrency} Account Required`,
+        descriptions: [
+          `You must have a ${selectedCurrency} account before creating a virtual card. Please create a ${selectedCurrency} account first.`,
+        ],
+      });
+      return;
+    }
+
+    const account = getCurrencyAccount(selectedCurrency);
+    if (account && account.status && account.status !== "ACTIVE") {
+      ErrorToast({
+        title: "Account Not Active",
+        descriptions: [
+          `Your ${selectedCurrency} account is ${account.status.toLowerCase()}.`,
+          "Please ensure your account is active before creating a virtual card.",
+          "If you just created the account, please wait a moment for it to be activated.",
+        ],
+      });
+      return;
+    }
+
+    if (!cardholderNameInput.trim()) {
+      ErrorToast({
+        title: "Validation Error",
+        descriptions: ["Card label is required"],
+      });
+      return;
+    }
+
+    if (!/^\d{8}$/.test(cardPinInput.trim())) {
+      ErrorToast({
+        title: "Validation Error",
+        descriptions: ["Card PIN must be exactly 8 digits."],
+      });
+      return;
+    }
+
+    // Parse funding amount if provided
+    const parsedFundingAmount = fundingAmount.trim()
+      ? parseFloat(fundingAmount.trim())
+      : undefined;
+
+    // Validate funding amount if provided
+    if (
+      fundingAmount.trim() &&
+      (isNaN(parsedFundingAmount!) || parsedFundingAmount! < 0)
+    ) {
+      ErrorToast({
+        title: "Validation Error",
+        descriptions: ["Funding amount must be a valid positive number."],
+      });
+      return;
+    }
+
+    if (!account) {
+      ErrorToast({
+        title: "Account Error",
+        descriptions: ["Unable to resolve the selected currency account."],
+      });
+      return;
+    }
+
+    // Build payload with optional initialBalance
+    const payload: any = {
+      currency: selectedCurrency,
+      label: cardholderNameInput.trim(),
+      pin: cardPinInput.trim(),
+      fundingAmount: parsedFundingAmount || 0,
+    };
+
+    // Log account details before creating card
+    if (process.env.NODE_ENV === "development") {
+      console.log("Creating card with account:", {
+        currency: selectedCurrency,
+        label: cardholderNameInput.trim(),
+        fundingAmount: parsedFundingAmount,
+        account: account
+          ? {
+            id: account.id,
+            currency: account.currency,
+            status: account.status,
+            accountNumber: account.accountNumber,
+          }
+          : null,
+        // do not log PIN
+        payload: { ...payload, pin: "********" },
+      });
+    }
+
+    createCard(payload);
+  };
+
+  const handleFreeze = () => {
+    if (!selectedCard) return;
+    const isFrozen = selectedCard.status === "FROZEN";
+    freezeCard({ cardId: selectedCard.id, freeze: !isFrozen });
+  };
+
+  const handleBlock = () => {
+    if (!selectedCard) return;
+    // BlockCardModal will handle the actual blocking with PIN
+  };
+
+  const handleClose = () => {
+    if (!selectedCard) return;
+    // CloseCardModal will handle the actual closing with PIN
+  };
+
+  const formatExpiry = (card: IVirtualCard) => {
+    if (card.expiryMonth && card.expiryYear) {
+      const month = String(card.expiryMonth).padStart(2, "0");
+      const year = String(card.expiryYear).slice(-2);
+      return `${month}/${year}`;
+    }
+    return "MM/YY";
+  };
+
+  const maskedNumber = (n?: string) => {
+    if (!n) return "•••• •••• •••• 0000";
+    const last4 = n.replace(/\s+/g, "").slice(-4);
+    return `•••• •••• •••• ${last4}`;
+  };
+
+  const defaultCardholderName = (user?.fullname || "CARD HOLDER").toUpperCase();
+
+  const isCardDisabled = (card: IVirtualCard) => {
+    return card.status === "BLOCKED" || card.status === "CLOSED";
+  };
+
+  // Filter cards by selected currency
+  const filteredVirtualCards = virtualCards.filter((card: IVirtualCard) =>
+    (card.currency || "").toUpperCase() === selectedCurrency
+  );
+
+  const accountRequirementLabel =
+    selectedCurrency === "NGN"
+      ? "NGN Wallet Required"
+      : `${selectedCurrency} Account Required`;
+
+  const accountRequirementDescription =
+    selectedCurrency === "NGN"
+      ? "You must have a NGN wallet before creating a virtual card. Please contact support if you don't have a NGN wallet."
+      : `You must have a ${selectedCurrency} account before creating a virtual card. Please create a ${selectedCurrency} account in the Accounts page first.`;
+
+  const renderEmptyVirtual = () => (
+    <div className="flex flex-col items-center justify-center py-16 sm:py-20 gap-6">
+      <div className="w-32 h-24 sm:w-40 sm:h-28 rounded-xl bg-white/5 flex items-center justify-center border-4 border-white/10">
+        <FiCreditCard className="text-4xl text-white/40" />
+      </div>
+      <div className="text-center max-w-md space-y-3">
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mb-2">
+          <p className="text-yellow-400 text-xs sm:text-sm font-medium mb-1">
+            Important Notice
+          </p>
+          <p className="text-white/80 text-xs sm:text-sm">
+            • Virtual cards are currently available for USD only
+          </p>
+          <p className="text-white/80 text-xs sm:text-sm">
+            • You must have the matching wallet/account before creating a virtual card
+          </p>
+        </div>
+        {!hasCurrencyAccount(selectedCurrency) ? (
+          <div className="space-y-2">
+            <p className="text-white/60 text-sm">
+              You need a {selectedCurrency} account to create a virtual card.
+            </p>
+            <p className="text-white/40 text-xs">
+              Please create a currency account in the Accounts page first.
+            </p>
+          </div>
+        ) : (
+          <p className="text-white text-sm sm:text-base mb-2">
+            You currently do not have any virtual {selectedCurrency} cards linked to
+            this account.
+          </p>
+        )}
+      </div>
+      <CustomButton
+        onClick={() => setOpenCreateCard(true)}
+        disabled={!hasCurrencyAccount(selectedCurrency)}
+        className="bg-[#f76301] hover:bg-[#e55a00] text-black px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Create Virtual Card
+      </CustomButton>
+    </div>
+  );
+
+  const renderPhysical = () => (
+    <div className="relative">
+      {/* Overlay - blocks all interactions */}
+      <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm rounded-xl flex items-center justify-center pointer-events-auto">
+        <div className="text-center px-6">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#f76301]/20 flex items-center justify-center border-2 border-[#f76301]">
+            <FiCreditCard className="text-3xl text-[#f76301]" />
+          </div>
+          <h3 className="text-white text-xl font-semibold mb-2">Coming Soon</h3>
+          <p className="text-white/70 text-sm">Physical cards will be available soon</p>
+        </div>
+      </div>
+
+      {/* Content - disabled with pointer-events-none */}
+      <div className="flex flex-col gap-4 items-center pointer-events-none opacity-50">
+        <div className="flex justify-center w-full">
+          <CardPreview cardholder="John Doe" maskedNumber="•••• •••• •••• 1234" expiry="07/28" brand="mastercard" variant="gold" issuerName="ValarPay" status={isFrozen ? "frozen" : "active"} className="h-44 sm:h-48 max-w-sm w-full" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
+          <button onClick={() => setOpenDetails(true)} className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-colors">
+            <FiEye />
+            <span className="text-sm">Show Details</span>
+          </button>
+          <button onClick={() => setOpenFreeze(true)} className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-colors">
+            {isFrozen ? <FiUnlock /> : <FiLock />}
+            <span className="text-sm">{isFrozen ? "Un-freeze Card" : "Freeze Card"}</span>
+          </button>
+        </div>
+
+        <div className="mt-2 rounded-xl border border-white/10 bg-white/5 p-3 w-full max-w-sm">
+          <p className="text-white/80 text-sm mb-2">Manage Card</p>
+          <div className="divide-y divide-white/10">
+            <button onClick={() => setOpenChangePin(true)} className="w-full flex items-center justify-between py-3 text-left">
+              <span className="text-white text-sm">Change Pin</span>
+              <FiLock className="text-white/70" />
+            </button>
+            <button onClick={() => setOpenResetPin(true)} className="w-full flex items-center justify-between py-3 text-left">
+              <span className="text-white text-sm">Reset Pin</span>
+              <FiLock className="text-white/70" />
+            </button>
+            <button onClick={() => setOpenLimit(true)} className="w-full flex items-center justify-between py-3 text-left">
+              <span className="text-white text-sm">Set Spending Limit</span>
+              <FiAlertCircle className="text-white/70" />
+            </button>
+            <button onClick={() => setOpenBlock(true)} className="w-full flex items-center justify-between py-3 text-left">
+              <span className="text-red-400 text-sm">Block Card</span>
+              <FiAlertCircle className="text-red-400" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderVirtual = () => {
+    if (cardsLoading) {
+      return (
+        <div className="flex items-center justify-center py-16">
+          <div className="w-8 h-8 border-2 border-[#f76301] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      );
+    }
+
+    if (filteredVirtualCards.length === 0) {
+      return renderEmptyVirtual();
+    }
+
+    return (
+      <div className="flex flex-col gap-4">
+        {filteredVirtualCards.map((card: IVirtualCard) => {
+          const isDisabled = isCardDisabled(card);
+          const isFrozen = card.status === "FROZEN";
+
+          return (
+            <div key={card.id} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-4 items-center md:items-start">
+                <div className="flex justify-center w-full">
+                  <CardPreview
+                    cardholder={defaultCardholderName}
+                    maskedNumber={maskedNumber(card.cardNumber)}
+                    expiry={formatExpiry(card)}
+                    brand="visa"
+                    variant="dark"
+                    issuerName="ValarPay"
+                    status={isFrozen ? "frozen" : card.status === "ACTIVE" ? "active" : "frozen"}
+                    isVirtual={true}
+                    className="h-44 sm:h-48 max-w-sm w-full"
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 w-full max-w-sm">
+                  <div>
+                    <p className="text-white/60 text-xs">Balance</p>
+                    <p className="text-white text-lg font-semibold">{card.currency} {Number(card.balance || 0).toLocaleString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white/60 text-xs">Status</p>
+                    <p className={`text-xs font-medium capitalize ${card.status === "ACTIVE" ? "text-green-400" :
+                      card.status === "FROZEN" ? "text-yellow-400" :
+                        card.status === "BLOCKED" ? "text-red-400" :
+                          "text-gray-400"
+                      }`}>
+                      {card.status.toLowerCase()}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
+                  <CustomButton
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenDetails(true);
+                    }}
+                    disabled={isDisabled}
+                    className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <FiEye />
+                    <span className="text-sm">Show Details</span>
+                  </CustomButton>
+                  <CustomButton
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenFund(true);
+                    }}
+                    disabled={isDisabled}
+                    className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#f76301] hover:bg-[#e55a00] text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <FiDollarSign />
+                    <span className="text-sm">Fund Card</span>
+                  </CustomButton>
+                </div>
+              </div>
+              <div className="mt-0 md:mt-2 rounded-xl border border-white/10 bg-white/5 p-3 h-fit">
+                <p className="text-white/80 text-sm mb-2">Manage Card</p>
+                <div className="divide-y divide-white/10">
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenFund(true);
+                    }}
+                    disabled={isDisabled}
+                    className="w-full flex items-center justify-between py-3 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-white text-sm flex items-center gap-2">
+                      <FiDollarSign className="text-sm" />
+                      Fund Card
+                    </span>
+                    <FiArrowDownLeft className="text-white/70" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenWithdraw(true);
+                    }}
+                    disabled={isDisabled}
+                    className="w-full flex items-center justify-between py-3 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-white text-sm flex items-center gap-2">
+                      <FiArrowUpRight className="text-sm" />
+                      Withdraw Funds
+                    </span>
+                    <FiArrowUpRight className="text-white/70" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenTransactions(true);
+                    }}
+                    disabled={isDisabled}
+                    className="w-full flex items-center justify-between py-3 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-white text-sm">View Transactions</span>
+                    <FiEye className="text-white/70" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenChangePin(true);
+                    }}
+                    disabled={isDisabled}
+                    className="w-full flex items-center justify-between py-3 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-white text-sm">Change Pin</span>
+                    <FiLock className="text-white/70" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenResetPin(true);
+                    }}
+                    disabled={isDisabled}
+                    className="w-full flex items-center justify-between py-3 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-white text-sm">Reset Pin</span>
+                    <FiLock className="text-white/70" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenLimit(true);
+                    }}
+                    disabled={isDisabled}
+                    className="w-full flex items-center justify-between py-3 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-white text-sm">Set Spending Limit</span>
+                    <FiAlertCircle className="text-white/70" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenFreeze(true);
+                    }}
+                    disabled={isDisabled || card.status === "CLOSED"}
+                    className="w-full flex items-center justify-between py-3 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-white text-sm">{isFrozen ? "Un-freeze Card" : "Freeze Card"}</span>
+                    {isFrozen ? <FiUnlock className="text-white/70" /> : <FiLock className="text-white/70" />}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenBlock(true);
+                    }}
+                    disabled={isDisabled}
+                    className="w-full flex items-center justify-between py-3 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-red-400 text-sm">Block Card</span>
+                    <FiAlertCircle className="text-red-400" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setOpenClose(true);
+                    }}
+                    disabled={isDisabled}
+                    className="w-full flex items-center justify-between py-3 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-red-400 text-sm">Close Card</span>
+                    <FiAlertCircle className="text-red-400" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  return (
+    <>
+      <div className="flex flex-col gap-6 md:gap-8 pb-10 overflow-y-auto scroll-area scroll-smooth pr-1">
+        {/* Header + Currency Switcher */}
+        <div className="w-full flex flex-col gap-3">
+          <div className="w-full flex items-center justify-between gap-3 sm:gap-4">
+            <h1 className="text-white text-xl sm:text-2xl font-semibold">Cards</h1>
+            <div className="relative flex-shrink-0" ref={currencyDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setCurrencyDropdownOpen(!currencyDropdownOpen)}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#f76301] text-black text-xs sm:text-sm font-semibold px-3 py-1.5 uppercase whitespace-nowrap hover:bg-[#e55a00] transition-colors"
+              >
+                <NextImage
+                  src={getCurrencyIconByString(selectedCurrency.toLowerCase()) || ""}
+                  alt="flag"
+                  width={16}
+                  height={16}
+                  className="w-4 h-4"
+                />
+                <span>{selectedCurrency} Cards</span>
+                <FiChevronDown className={`text-black/80 transition-transform ${currencyDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+              {currencyDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-xl bg-bg-600 dark:bg-bg-2200 border border-border-800 dark:border-border-700 shadow-2xl p-2 text-white z-50">
+                  {supportedCardCurrencies.map((currency) => {
+                    const hasAccount = hasCurrencyAccount(currency);
+
+                    return (
+                      <button
+                        key={currency}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCurrency(currency);
+                          setCurrencyDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 ${selectedCurrency === currency ? "bg-white/10" : ""}`}
+                      >
+                        <NextImage
+                          src={getCurrencyIconByString(currency.toLowerCase()) || ""}
+                          alt="flag"
+                          width={18}
+                          height={18}
+                          className="w-5 h-5"
+                        />
+                        <span className="text-sm flex-1 text-white">{currency} Cards</span>
+                        {!hasAccount && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                            No Account
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+          <p className="text-white/60 text-xs sm:text-sm">Manage your virtual cards</p>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 bg-white/5 p-1.5 sm:p-2 rounded-2xl">
+            {[
+              { key: "physical", label: "Physical Card" },
+              { key: "virtual", label: "Virtual Cards" },
+            ].map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key as TabKey)}
+                className={`rounded-full py-1.5 sm:py-2 text-[11px] xs:text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex items-center justify-center ${tab === (t.key as TabKey) ? "bg-white/15 text-white" : "text-white/70 hover:text-white"
+                  }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {tab === "virtual" ? renderVirtual() : renderPhysical()}
+        </div>
+      </div>
+
+      {/* Modals */}
+      <ShowCardDetailsModal isOpen={openDetails} onClose={() => { setOpenDetails(false); setSelectedCard(null); }} card={selectedCard} />
+      <ChangePinModal isOpen={openChangePin} onClose={() => { setOpenChangePin(false); setSelectedCard(null); }} />
+      <ResetPinModal isOpen={openResetPin} onClose={() => { setOpenResetPin(false); setSelectedCard(null); }} />
+      <SpendingLimitModal isOpen={openLimit} onClose={() => { setOpenLimit(false); setSelectedCard(null); }} card={selectedCard} />
+      <ConfirmActionModal
+        isOpen={openFreeze}
+        onClose={() => { setOpenFreeze(false); setSelectedCard(null); }}
+        onConfirm={handleFreeze}
+        title={selectedCard?.status === "FROZEN" ? "Un-freeze Card?" : "Freeze Card?"}
+        description={selectedCard?.status === "FROZEN" ? "Your card will become active for transactions." : "This will temporarily disable card transactions until un-frozen."}
+        confirmText={selectedCard?.status === "FROZEN" ? "Un-freeze" : "Freeze"}
+      />
+      {selectedCard && (
+        <BlockCardModal
+          isOpen={openBlock}
+          onClose={() => { setOpenBlock(false); setSelectedCard(null); }}
+          card={selectedCard}
+          onSuccess={() => {
+            setOpenBlock(false);
+            setSelectedCard(null);
+            refetchCards();
+          }}
+        />
+      )}
+      {selectedCard && (
+        <CloseCardModal
+          isOpen={openClose}
+          onClose={() => { setOpenClose(false); setSelectedCard(null); }}
+          card={selectedCard}
+          onSuccess={() => {
+            setOpenClose(false);
+            setSelectedCard(null);
+            refetchCards();
+          }}
+        />
+      )}
+
+      {/* Error Modal for Card Creation */}
+      <ValidationErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, title: "", descriptions: [] })}
+        title={errorModal.title}
+        descriptions={errorModal.descriptions}
+      />
+
+      {/* Create Card Modal */}
+      {openCreateCard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/80"
+            onClick={() => {
+              setOpenCreateCard(false);
+              setCardholderNameInput("");
+              setCardPinInput("");
+              setFundingAmount("");
+              setSelectedCurrency("USD");
+            }}
+          />
+          <div className="relative w-full max-w-md bg-bg-600 dark:bg-bg-1100 border border-white/10 rounded-2xl p-5 z-10">
+            <h2 className="text-white text-base font-semibold mb-4">Create Virtual Card</h2>
+            <div className="flex flex-col gap-3">
+              {!hasCurrencyAccount(selectedCurrency) && (
+                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
+                  <p className="text-yellow-400 text-xs font-medium mb-1">
+                    {accountRequirementLabel}
+                  </p>
+                  <p className="text-white/80 text-xs">
+                    {accountRequirementDescription}
+                  </p>
+                </div>
+              )}
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                <p className="text-blue-400 text-xs font-medium mb-1">Note</p>
+                <p className="text-white/80 text-xs">
+                  • Virtual cards are currently available for USD, EUR, GBP, and NGN
+                </p>
+                <p className="text-white/80 text-xs">
+                  • You must have the matching wallet or account before creating a virtual card
+                </p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-white/70 text-xs">Card Label</label>
+                <input
+                  className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-3 px-3 text-white text-sm placeholder:text-white/50 outline-none focus:border-[#f76301]"
+                  placeholder="e.g., My Shopping Card"
+                  value={cardholderNameInput}
+                  onChange={(e) => setCardholderNameInput(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-white/70 text-xs">Card PIN (8 digits)</label>
+                <input
+                  inputMode="numeric"
+                  className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-3 px-3 text-white text-sm placeholder:text-white/50 outline-none focus:border-[#f76301]"
+                  placeholder="e.g., 12345678"
+                  value={cardPinInput}
+                  maxLength={8}
+                  onChange={(e) =>
+                    setCardPinInput(e.target.value.replace(/\D/g, "").slice(0, 8))
+                  }
+                />
+                <p className="text-white/50 text-[10px] mt-1">
+                  This is your card PIN (must be exactly 8 digits).
+                </p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-white/70 text-xs">
+                  Amount to Fund (Optional)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="w-full bg-bg-2400 dark:bg-bg-2100 border border-border-600 rounded-lg py-3 px-3 text-white text-sm placeholder:text-white/50 outline-none focus:border-[#f76301]"
+                  placeholder={`e.g., 100.00`}
+                  value={fundingAmount}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow empty, numbers, and decimal point
+                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                      setFundingAmount(value);
+                    }
+                  }}
+                />
+                <p className="text-white/50 text-[10px] mt-1">
+                  Optional: Set an amount to fund your card in {selectedCurrency}
+                </p>
+              </div>
+              <div className="flex gap-3 mt-2">
+                <CustomButton
+                  onClick={() => {
+                    setOpenCreateCard(false);
+                    setCardholderNameInput("");
+                    setCardPinInput("");
+                    setFundingAmount("");
+                    setSelectedCurrency("USD");
+                  }}
+                  className="flex-1 bg-transparent border border-white/15 text-white rounded-lg py-2.5"
+                >
+                  Cancel
+                </CustomButton>
+                <CustomButton
+                  onClick={handleCreateCard}
+                  disabled={
+                    creatingCard ||
+                    !cardholderNameInput.trim() ||
+                    !/^\d{8}$/.test(cardPinInput.trim()) ||
+                    !hasCurrencyAccount(selectedCurrency)
+                  }
+                  isLoading={creatingCard}
+                  className="flex-1 bg-[#f76301] hover:bg-[#e55a00] text-black rounded-lg py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Create Card
+                </CustomButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default CardsContent;

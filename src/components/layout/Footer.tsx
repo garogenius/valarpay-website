@@ -85,8 +85,8 @@ export default function Footer() {
           <div className="flex flex-col items-start gap-[4px] w-[296px]">
             <h4 className="font-poppins font-bold text-[12px] leading-[32px] text-[#FF6600]">Info</h4>
             <div className="font-poppins text-[12px] leading-[23px] text-white/90 flex flex-col">
-              <span>Head office: 23, OGAGIFO STREET OFF DBS ROAD BEFORE GQ SUITES , ASABA, DELTA STATE</span>
-              <span>02013309609</span>
+              <span>Head office: No.9a New Market Road Main Market , Onitsha, Anambra State</span>
+              <span>+2348134146906</span>
               <span>support@valarpay.com</span>
             </div>
           </div>

@@ -150,8 +150,8 @@ const Footer = () => {
               </h3>
               <div className="flex flex-col gap-1.5 xs:gap-2 ">
                 <a className="">
-                  Head office: 23, OGAGIFO STREET OFF DBS ROAD BEFORE GQ SUITES
-                  , ASABA, DELTA STATE
+                  Head office: No.9a New Market Road Main Market
+                  , Onitsha, Anambra State
                 </a>
 
                 <p
@@ -160,7 +160,7 @@ const Footer = () => {
                   }}
                   className="cursor-pointer"
                 >
-                  02013309609
+                  +2348134146906
                 </p>
                 <p
                   onClick={() => {

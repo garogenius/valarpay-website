@@ -576,12 +576,12 @@ const TermsAndConditionContent = () => {
                     </a>
                   </p>
                   <p>
-                    <span className="font-semibold">Phone:</span> 02013309609
+                    <span className="font-semibold">Phone:</span> +2348134146906
                   </p>
                   <p>
                     <span className="font-semibold">Head Office Address:</span>{" "}
-                    23, OGAGIFO STREET, OFF DBS ROAD, BEFORE GQ SUITES, ASABA,
-                    DELTA STATE, NIGERIA.
+                    No.9a New Market Road Main Market, Onitsha,
+                    Anambra State, NIGERIA.
                   </p>
                 </div>
               </div>

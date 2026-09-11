@@ -73,20 +73,20 @@ export default function ContactForm() {
           <div className="flex flex-col gap-8">
             <div className="flex items-center gap-6">
               <Mail className="text-[#FF5E00] w-6 h-6 flex-shrink-0" />
-              <span className="text-gray-700 text-[15px] md:text-[16px]">support@nattypay.com</span>
+              <span className="text-gray-700 text-[15px] md:text-[16px]">support@valarpay.com</span>
             </div>
             
             <div className="flex items-start gap-6">
               <Home className="text-[#FF5E00] w-6 h-6 flex-shrink-0 mt-1" />
               <span className="text-gray-700 text-[15px] md:text-[16px] leading-relaxed max-w-[250px]">
-                23, OGAGIFO STREET OFF DBS ROAD BEFORE GQ SUITES,<br />
-                ASABA, DELTA STATE
+                No.9a New Market Road Main Market,<br />
+                Onitsha, Anambra State
               </span>
             </div>
             
             <div className="flex items-center gap-6">
               <Phone className="text-[#FF5E00] w-6 h-6 flex-shrink-0" />
-              <span className="text-gray-700 text-[15px] md:text-[16px]">+234 813 414 6909</span>
+              <span className="text-gray-700 text-[15px] md:text-[16px]">+2348134146906</span>
             </div>
           </div>
         </div>

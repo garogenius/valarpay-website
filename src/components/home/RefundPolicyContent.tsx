@@ -143,7 +143,7 @@ const RefundPolicyContent = () => {
 
                 <p>
                   Contact Support: <strong>support@valarpay.com</strong> or{" "}
-                  <strong>02013309609</strong>.
+                  <strong>+2348134146906</strong>.
                 </p>
 
                 <p>
@@ -244,10 +244,10 @@ const RefundPolicyContent = () => {
                   For further assistance, contact:
                   <br />
                   <strong>support@valarpay.com</strong> |{" "}
-                  <strong>02013309609</strong>
+                  <strong>+2348134146906</strong>
                   <br />
-                  Address: 23, OGAGIFO STREET, OFF DBS ROAD, BEFORE GQ SUITES,
-                  ASABA, DELTA STATE.
+                  Address: No.9a New Market Road Main Market,
+                  Onitsha, Anambra State.
                 </p>
               </div>
             </div>

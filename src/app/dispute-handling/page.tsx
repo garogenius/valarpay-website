@@ -16,7 +16,7 @@ export default function DisputeHandling() {
       <ul>
         <li><strong>Email:</strong> Send an email to <a href="mailto:support@valarpay.com">support@valarpay.com</a> with the subject line "Complaint/Dispute - [Your Account Number]".</li>
         <li><strong>In-App Support:</strong> Use the live chat feature or the "Report an Issue" button directly within the ValarPay mobile app.</li>
-        <li><strong>Phone:</strong> Call our 24/7 customer support hotline at 02013309609.</li>
+        <li><strong>Phone:</strong> Call our 24/7 customer support hotline at +2348134146906.</li>
       </ul>
 
       <h2>3. The Resolution Process</h2>

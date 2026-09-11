@@ -236,7 +236,7 @@ const PrivacyPolicyContent = () => {
                 <p>
                   To exercise any rights, contact us at{" "}
                   <strong>support@valarpay.com</strong> or call{" "}
-                  <strong>02013309609</strong>.
+                  <strong>+2348134146906</strong>.
                 </p>
               </div>
 
@@ -289,14 +289,14 @@ const PrivacyPolicyContent = () => {
                   <strong>VALAR GLOBAL SERVICES LIMITED</strong>
                 </p>
                 <p>
-                  Address: 23, OGAGIFO STREET, OFF DBS ROAD, BEFORE GQ SUITES,
-                  ASABA, DELTA STATE, NIGERIA.
+                  Address: No.9a New Market Road Main Market,
+                  Onitsha, Anambra State, NIGERIA.
                 </p>
                 <p>
                   Email: <strong>support@valarpay.com</strong>
                 </p>
                 <p>
-                  Phone: <strong>02013309609</strong>
+                  Phone: <strong>+2348134146906</strong>
                 </p>
               </div>
             </div>

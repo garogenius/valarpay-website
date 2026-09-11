@@ -251,13 +251,13 @@ const TermsOfUseContent = () => {
                   Email: <strong>support@valarpay.com</strong>
                 </p>
                 <p>
-                  Phone: <strong>02013309609</strong>
+                  Phone: <strong>+2348134146906</strong>
                 </p>
                 <p>
                   Address:{" "}
                   <strong>
-                    23, OGAGIFO STREET, OFF DBS ROAD, BEFORE GQ SUITES, ASABA,
-                    DELTA STATE, NIGERIA.
+                    No.9a New Market Road Main Market, Onitsha,
+                    Anambra State, NIGERIA.
                   </strong>
                 </p>
               </div>

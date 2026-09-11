@@ -165,7 +165,7 @@ const DataProtectionPolicyContent = () => {
 
                 <p>
                   Contact: <strong>support@valarpay.com</strong> •
-                  02013309609
+                  +2348134146906
                 </p>
               </div>
 
@@ -198,11 +198,11 @@ const DataProtectionPolicyContent = () => {
                   <strong>VALAR GLOBAL SERVICES LIMITED</strong>
                 </p>
                 <p>
-                  23, OGAGIFO STREET, OFF DBS ROAD, BEFORE GQ SUITES, ASABA,
-                  DELTA STATE.
+                  No.9a New Market Road Main Market, Onitsha,
+                  Anambra State.
                 </p>
                 <p>Email: support@valarpay.com</p>
-                <p>Phone: 02013309609</p>
+                <p>Phone: +2348134146906</p>
               </div>
             </div>
           </div>

@@ -43,7 +43,7 @@ const Location = () => {
                 Office Address
               </h1>
               <p className="text-sm 2xs:text-base leading-[1.3rem] xs:leading-[1.5rem]">
-                23, OGAGIFO STREET OFF DBS ROAD BEFORE GQ SUITES , ASABA, DELTA STATE
+                No.9a New Market Road Main Market, Onitsha, Anambra State
               </p>
             </motion.div>
           </div>

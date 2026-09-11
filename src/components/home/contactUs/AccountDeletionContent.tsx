@@ -149,12 +149,12 @@ const AccountDeletionContent = () => {
               <div className="z-20 flex flex-col gap-2 text-text-200 dark:text-text-400">
                 <div
                   onClick={() => {
-                    window.open("https://wa.me/2349029852374", "_blank");
+                    window.open("https://wa.me/2348134146906", "_blank");
                   }}
                   className="cursor-pointer flex items-center gap-1 "
                 >
                   <FaPhone className="text-xl text-text-1000" />
-                  <p className="">02013309609</p>
+                  <p className="">+2348134146906</p>
                 </div>
                 <div
                   onClick={() => {

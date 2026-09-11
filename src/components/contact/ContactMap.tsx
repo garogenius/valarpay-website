@@ -9,7 +9,7 @@ export default function ContactMap() {
         {/* Interactive Google Map */}
         <div className="absolute inset-0 z-0">
           <iframe 
-            src="https://maps.google.com/maps?q=23%20Ogagifo%20Street,%20Asaba,%20Delta,%20Nigeria&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            src="https://maps.google.com/maps?q=No.9a%20New%20Market%20Road%20Main%20Market,%20Onitsha,%20Anambra,%20Nigeria&t=&z=15&ie=UTF8&iwloc=&output=embed"
             width="100%" 
             height="100%" 
             style={{ border: 0 }} 
@@ -32,7 +32,7 @@ export default function ContactMap() {
           {/* Address Content */}
           <div className="p-8 md:p-10 flex items-center justify-center text-center">
             <p className="text-black font-semibold text-[14px] md:text-[16px] leading-loose">
-              23, OGAGIFO STREET OFF DBS ROAD BEFORE GQ SUITES, ASABA, DELTA STATE
+              No.9a New Market Road Main Market, Onitsha, Anambra State
             </p>
           </div>
         </div>

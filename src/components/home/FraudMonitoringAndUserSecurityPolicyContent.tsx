@@ -180,7 +180,7 @@ const FraudMonitoringAndUserSecurityPolicyContent = () => {
                     Email: <strong>support@valarpay.com</strong>
                   </li>
                   <li>
-                    Phone: <strong>02013309609</strong>
+                    Phone: <strong>+2348134146906</strong>
                   </li>
                   <li>In-app report button (where applicable)</li>
                 </ul>
@@ -269,12 +269,12 @@ const FraudMonitoringAndUserSecurityPolicyContent = () => {
                   <strong>VALAR GLOBAL SERVICES LIMITED</strong>
                 </p>
                 <p>
-                  23, OGAGIFO STREET, OFF DBS ROAD, BEFORE GQ SUITES, ASABA,
-                  DELTA STATE.
+                  No.9a New Market Road Main Market, Onitsha,
+                  Anambra State.
                 </p>
 
                 <p>Email: support@valarpay.com</p>
-                <p>Phone: 02013309609</p>
+                <p>Phone: +2348134146906</p>
               </div>
             </div>
           </div>
